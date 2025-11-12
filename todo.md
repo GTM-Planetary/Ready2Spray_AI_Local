@@ -140,3 +140,12 @@
 - [x] Auto-populate job form fields from selected product
 - [ ] Debug dialog rendering issue (component built but not displaying)
 - [ ] Test complete workflow: search → select → populate job form
+
+## EPA Product Lookup Dialog Fix
+- [x] Created backend Agrian scraping service (server/agrian.ts)
+- [x] Added tRPC endpoints for product search and details (agrian router)
+- [x] Built AgrianProductLookup component with full UI (filters, search, results table, detail tabs)
+- [x] Integrated component into Jobs page with EPA Product Lookup button
+- [x] Wired state management (showAgrianLookup state, onClick handler)
+- [ ] **BLOCKER**: Debug why modal isn't displaying when button is clicked (component renders but modal doesn't show)
+- [ ] Test complete product search and selection workflow once modal displays

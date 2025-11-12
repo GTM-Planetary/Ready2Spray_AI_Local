@@ -11,13 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Table,
   TableBody,
   TableCell,
@@ -26,35 +19,36 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search, ExternalLink } from "lucide-react";
+import { Loader2, Search, ExternalLink, X } from "lucide-react";
 import { toast } from "sonner";
 
-// US States
 const US_STATES = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+  "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+  "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+  "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+  "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+  "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+  "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
 ];
 
-// Canadian Provinces
 const CA_PROVINCES = [
-  "AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QC", "SK", "YT"
+  "Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador",
+  "Northwest Territories", "Nova Scotia", "Nunavut", "Ontario", "Prince Edward Island",
+  "Quebec", "Saskatchewan", "Yukon"
 ];
 
-// Common commodities/crops
-const COMMON_CROPS = [
-  "Corn", "Soybeans", "Wheat", "Cotton", "Rice", "Barley", "Oats",
-  "Sorghum", "Alfalfa", "Hay", "Peanuts", "Sunflower", "Canola",
-  "Sugar Beet", "Potato", "Tomato", "Lettuce", "Onion", "Carrot",
-  "Apple", "Orange", "Grape", "Strawberry", "Almond", "Walnut"
+const COMMODITIES = [
+  "Corn", "Soybeans", "Wheat", "Cotton", "Rice", "Barley", "Sorghum", "Oats",
+  "Sunflower", "Canola", "Peanuts", "Potatoes", "Tomatoes", "Lettuce", "Onions",
+  "Carrots", "Beans", "Peas", "Alfalfa", "Clover", "Grass", "Pasture", "Range",
+  "Forest", "Ornamental", "Turf"
 ];
 
 interface AgrianProductLookupProps {
   open: boolean;
   onClose: () => void;
-  onSelectProduct: (productDetail: any) => void;
+  onSelectProduct: (product: any) => void;
   defaultCountry?: "United States" | "Canada";
   defaultState?: string;
   defaultCommodity?: string;
@@ -68,41 +62,42 @@ export function AgrianProductLookup({
   defaultState,
   defaultCommodity,
 }: AgrianProductLookupProps) {
-  console.log("AgrianProductLookup render, open:", open);
   const [country, setCountry] = useState<"United States" | "Canada">(defaultCountry);
   const [state, setState] = useState(defaultState || "");
   const [commodity, setCommodity] = useState(defaultCommodity || "");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  
+  console.log('[AgrianProductLookup] Component rendered, open:', open, 'state:', state, 'commodity:', commodity);
 
   // Search products
   const searchProducts = trpc.agrian.searchProducts.useQuery(
     {
       country,
-      state: state || undefined,
-      commodity: commodity || undefined,
-      query: searchQuery || undefined,
+      state,
+      commodity,
+      productName: searchQuery,
     },
     {
-      enabled: false, // Only run when user clicks search
+      enabled: false, // Manual trigger
     }
   );
 
   // Get product details
-  const productDetail = trpc.agrian.getProductDetail.useQuery(
+  const productDetails = trpc.agrian.getProductDetail.useQuery(
     {
-      url: selectedProduct?.url,
-      state: state || undefined,
-      commodity: commodity || undefined,
+      url: selectedProduct?.detailUrl || "",
+      state,
+      commodity,
     },
     {
-      enabled: !!selectedProduct?.url,
+      enabled: !!selectedProduct?.detailUrl,
     }
   );
 
   const handleSearch = () => {
-    if (!searchQuery && !state && !commodity) {
-      toast.error("Please enter a search term or select state/commodity");
+    if (!state && !commodity && !searchQuery) {
+      toast.error("Please provide at least one search criteria");
       return;
     }
     searchProducts.refetch();
@@ -112,36 +107,45 @@ export function AgrianProductLookup({
     setSelectedProduct(product);
   };
 
-  const handleConfirmSelection = () => {
-    if (productDetail.data) {
+  const handleUseProduct = () => {
+    if (selectedProduct && productDetails.data) {
       onSelectProduct({
         ...selectedProduct,
-        ...productDetail.data,
+        ...productDetails.data,
       });
       onClose();
-      toast.success(`Selected: ${selectedProduct.name}`);
+      toast.success("Product data populated successfully");
     }
   };
 
   const states = country === "United States" ? US_STATES : CA_PROVINCES;
 
-  return (
-    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>EPA Product Lookup - Agrian Label Center</DialogTitle>
-          <DialogDescription>
-            Search for EPA-registered agricultural products and import compliance data
-          </DialogDescription>
-        </DialogHeader>
+  if (!open) return null;
 
-        <div className="space-y-4">
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-background rounded-lg shadow-lg max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="p-6 border-b flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold">EPA Product Lookup - Agrian Label Center</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Search for EPA-registered agricultural products and auto-populate compliance data
+            </p>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
           {/* Search Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div>
-              <Label htmlFor="country">Country</Label>
+              <Label>Country</Label>
               <Select value={country} onValueChange={(v: any) => setCountry(v)}>
-                <SelectTrigger id="country">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -152,13 +156,12 @@ export function AgrianProductLookup({
             </div>
 
             <div>
-              <Label htmlFor="state">State/Province</Label>
+              <Label>State/Province</Label>
               <Select value={state} onValueChange={setState}>
-                <SelectTrigger id="state">
+                <SelectTrigger>
                   <SelectValue placeholder="Select state..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All States</SelectItem>
                   {states.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
@@ -169,16 +172,15 @@ export function AgrianProductLookup({
             </div>
 
             <div>
-              <Label htmlFor="commodity">Commodity/Crop</Label>
+              <Label>Commodity/Crop</Label>
               <Select value={commodity} onValueChange={setCommodity}>
-                <SelectTrigger id="commodity">
-                  <SelectValue placeholder="Select crop..." />
+                <SelectTrigger>
+                  <SelectValue placeholder="Select commodity..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Crops</SelectItem>
-                  {COMMON_CROPS.map((crop) => (
-                    <SelectItem key={crop} value={crop}>
-                      {crop}
+                  {COMMODITIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -186,60 +188,186 @@ export function AgrianProductLookup({
             </div>
 
             <div>
-              <Label htmlFor="search">Product Name</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="search"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                />
-                <Button onClick={handleSearch} disabled={searchProducts.isFetching}>
-                  {searchProducts.isFetching ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
+              <Label>Product Name</Label>
+              <Input
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              />
             </div>
           </div>
 
-          {/* Search Results */}
+          <Button onClick={handleSearch} disabled={searchProducts.isLoading} className="mb-6">
+            {searchProducts.isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Search className="mr-2 h-4 w-4" />
+            Search Products
+          </Button>
+
+          {/* Results */}
           {searchProducts.data && searchProducts.data.length > 0 && (
-            <div className="border rounded-lg">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Registration #</TableHead>
-                    <TableHead>Registrant</TableHead>
-                    <TableHead>Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {searchProducts.data.map((product: any, idx: number) => (
-                    <TableRow
-                      key={idx}
-                      className={selectedProduct === product ? "bg-muted" : ""}
-                    >
-                      <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell>{product.registrationNumber || "—"}</TableCell>
-                      <TableCell>{product.registrant || "—"}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleSelectProduct(product)}
-                        >
-                          View Details
-                        </Button>
-                      </TableCell>
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3">
+                Search Results ({searchProducts.data.length} products found)
+              </h3>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product</TableHead>
+                      <TableHead>Registration #</TableHead>
+                      <TableHead>Registrant</TableHead>
+                      <TableHead>Action</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {searchProducts.data.map((product: any, index: number) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{product.name}</TableCell>
+                        <TableCell>{product.registrationNumber || "N/A"}</TableCell>
+                        <TableCell>{product.registrant || "N/A"}</TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleSelectProduct(product)}
+                          >
+                            View Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+
+          {/* Product Details */}
+          {selectedProduct && (
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">{selectedProduct.name}</h3>
+                <Button onClick={handleUseProduct} disabled={productDetails.isLoading}>
+                  Use This Product
+                </Button>
+              </div>
+
+              {productDetails.isLoading && (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                  <span className="ml-2">Loading product details...</span>
+                </div>
+              )}
+
+              {productDetails.data && (
+                <Tabs defaultValue="general">
+                  <TabsList>
+                    <TabsTrigger value="general">General</TabsTrigger>
+                    <TabsTrigger value="crop">Crop Specific</TabsTrigger>
+                    <TabsTrigger value="safety">Safety/PPE</TabsTrigger>
+                    <TabsTrigger value="registration">Registration</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="general" className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-muted-foreground">Registrant</Label>
+                        <p>{productDetails.data.registrant || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Label Version</Label>
+                        <p>{productDetails.data.labelVersion || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Formulation Type</Label>
+                        <p>{productDetails.data.formulationType || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Physical State</Label>
+                        <p>{productDetails.data.physicalState || "N/A"}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <Label className="text-muted-foreground">Active Ingredients</Label>
+                        <p>{productDetails.data.activeIngredients || "N/A"}</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="crop" className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-muted-foreground">Re-Entry Interval</Label>
+                        <p>{productDetails.data.reEntryInterval || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Preharvest Interval</Label>
+                        <p>{productDetails.data.preharvestInterval || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Max Applications/Season</Label>
+                        <p>{productDetails.data.maxApplicationsPerSeason || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Max Rate/Season</Label>
+                        <p>{productDetails.data.maxRatePerSeason || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Methods Allowed</Label>
+                        <p>{productDetails.data.methodsAllowed || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Rate</Label>
+                        <p>{productDetails.data.rate || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Diluent (Aerial)</Label>
+                        <p>{productDetails.data.diluentAerial || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Diluent (Ground)</Label>
+                        <p>{productDetails.data.diluentGround || "N/A"}</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="safety" className="space-y-3">
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <Label className="text-muted-foreground">PPE Information</Label>
+                        <p>{productDetails.data.ppeInformation || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">Re-Entry PPE</Label>
+                        <p>{productDetails.data.reEntryPPE || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-muted-foreground">SDS Hazard Signal Word</Label>
+                        <p>{productDetails.data.sdsHazardSignalWord || "N/A"}</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="registration" className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-muted-foreground">EPA Registration Number</Label>
+                        <p className="font-mono">{productDetails.data.epaRegistrationNumber || "N/A"}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <Label className="text-muted-foreground">Approved States</Label>
+                        <p>{productDetails.data.approvedStates || "N/A"}</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              )}
+            </div>
+          )}
+
+          {searchProducts.isError && (
+            <div className="text-center py-8 text-destructive">
+              Error loading products. Please try again.
             </div>
           )}
 
@@ -248,162 +376,15 @@ export function AgrianProductLookup({
               No products found. Try adjusting your search criteria.
             </div>
           )}
-
-          {/* Product Details */}
-          {selectedProduct && (
-            <div className="border rounded-lg p-4 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{selectedProduct.name}</h3>
-                {selectedProduct.url && (
-                  <Button variant="ghost" size="sm" asChild>
-                    <a href={selectedProduct.url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      View on Agrian
-                    </a>
-                  </Button>
-                )}
-              </div>
-
-              {productDetail.isLoading && (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </div>
-              )}
-
-              {productDetail.data && (
-                <Tabs defaultValue="general" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="general">General</TabsTrigger>
-                    <TabsTrigger value="crop">Crop Specific</TabsTrigger>
-                    <TabsTrigger value="safety">Safety/PPE</TabsTrigger>
-                    <TabsTrigger value="registration">Registration</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="general" className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="font-semibold">Registrant:</span>{" "}
-                        {productDetail.data.registrant || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Label Version:</span>{" "}
-                        {productDetail.data.labelVersion || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Formulation Type:</span>{" "}
-                        {productDetail.data.formulationType || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Physical State:</span>{" "}
-                        {productDetail.data.physicalState || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Signal Word:</span>{" "}
-                        {productDetail.data.labelSignalWord || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Federally Restricted:</span>{" "}
-                        {productDetail.data.federallyRestricted ? "Yes" : "No"}
-                      </div>
-                      {productDetail.data.activeIngredients && (
-                        <div className="col-span-2">
-                          <span className="font-semibold">Active Ingredients:</span>{" "}
-                          {productDetail.data.activeIngredients.join(", ")}
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="crop" className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="font-semibold">Re-Entry Interval:</span>{" "}
-                        {productDetail.data.reEntryInterval || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Preharvest Interval:</span>{" "}
-                        {productDetail.data.preharvestInterval || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Max Applications/Season:</span>{" "}
-                        {productDetail.data.maxApplicationsPerSeason || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Max Rate/Season:</span>{" "}
-                        {productDetail.data.maxRatePerSeason || "—"}
-                      </div>
-                      <div className="col-span-2">
-                        <span className="font-semibold">Methods Allowed:</span>{" "}
-                        {productDetail.data.methodsAllowed?.join(", ") || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Rate:</span>{" "}
-                        {productDetail.data.rate || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Diluent (Aerial):</span>{" "}
-                        {productDetail.data.diluentAerial || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Diluent (Ground):</span>{" "}
-                        {productDetail.data.diluentGround || "—"}
-                      </div>
-                      <div>
-                        <span className="font-semibold">Diluent (Chemigation):</span>{" "}
-                        {productDetail.data.diluentChemigation || "—"}
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="safety" className="space-y-2">
-                    <div className="space-y-2 text-sm">
-                      <div>
-                        <span className="font-semibold">PPE Information:</span>
-                        <p className="mt-1">{productDetail.data.ppeInformation || "—"}</p>
-                      </div>
-                      <div>
-                        <span className="font-semibold">Re-Entry PPE:</span>
-                        <p className="mt-1">{productDetail.data.reEntryPPE || "—"}</p>
-                      </div>
-                      <div>
-                        <span className="font-semibold">SDS Hazard Signal Word:</span>{" "}
-                        {productDetail.data.sdsHazardSignalWord || "—"}
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="registration" className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="font-semibold">EPA Number:</span>{" "}
-                        {productDetail.data.epaNumber || productDetail.data.epaRegistrationNumber || "—"}
-                      </div>
-                      {productDetail.data.approvedStates && (
-                        <div className="col-span-2">
-                          <span className="font-semibold">Approved States:</span>{" "}
-                          {productDetail.data.approvedStates.join(", ")}
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              )}
-
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setSelectedProduct(null)}>
-                  Back to Results
-                </Button>
-                <Button
-                  onClick={handleConfirmSelection}
-                  disabled={!productDetail.data}
-                >
-                  Use This Product
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* Footer */}
+        <div className="p-4 border-t flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
