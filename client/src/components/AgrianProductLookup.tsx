@@ -62,6 +62,7 @@ export function AgrianProductLookup({
   defaultState,
   defaultCommodity,
 }: AgrianProductLookupProps) {
+  console.log('[AgrianProductLookup] RENDER START - open:', open);
   const [country, setCountry] = useState<"United States" | "Canada">(defaultCountry);
   const [state, setState] = useState(defaultState || "");
   const [commodity, setCommodity] = useState(defaultCommodity || "");

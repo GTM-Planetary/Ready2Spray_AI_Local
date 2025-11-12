@@ -149,3 +149,19 @@
 - [x] Wired state management (showAgrianLookup state, onClick handler)
 - [ ] **BLOCKER**: Debug why modal isn't displaying when button is clicked (component renders but modal doesn't show)
 - [ ] Test complete product search and selection workflow once modal displays
+
+## Fix EPA Product Lookup Modal Display (User Reported Issue)
+- [ ] Identify why modal component isn't rendering when button is clicked
+- [ ] Fix the rendering issue (likely Dialog component or conditional render problem)
+- [ ] Test modal opens when button is clicked
+- [ ] Test modal closes when X or Cancel is clicked
+- [ ] Test product search functionality works in modal
+- [ ] Test product selection auto-populates job form
+
+## EPA Product Lookup - Rebuild as Dedicated Page (Alternative Approach)
+- [x] Create ProductLookup page component at client/src/pages/ProductLookup.tsx
+- [x] Add route for /product-lookup in App.tsx
+- [x] Change EPA Product Lookup button to navigate to the new page (use Link or router.push)
+- [x] Implement product selection and data passing back to job form (via URL params or localStorage)
+- [x] Test complete workflow: job form → product lookup → select product → return to job form with data
+- [x] **VERIFIED WORKING**: EPA Registration Number (352-652) auto-populates when product is selected

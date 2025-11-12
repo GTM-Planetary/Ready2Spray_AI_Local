@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Plus, Calendar, ArrowLeft, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
 import { AgrianProductLookup } from "@/components/AgrianProductLookup";
@@ -15,6 +15,35 @@ export default function Jobs() {
   const [location, setLocation] = useLocation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAgrianLookup, setShowAgrianLookup] = useState(false);
+
+  // Check for selected product data from ProductLookup page
+  useEffect(() => {
+    const selectedProductData = localStorage.getItem("selectedAgrianProduct");
+    if (selectedProductData) {
+      try {
+        const product = JSON.parse(selectedProductData);
+        // Auto-populate form fields from selected product
+        setFormData((prev) => ({
+          ...prev,
+          epaNumber: product.epaNumber || prev.epaNumber,
+          chemicalProduct: product.name || prev.chemicalProduct,
+          reEntryInterval: product.reEntryInterval || prev.reEntryInterval,
+          preharvestInterval: product.preharvestInterval || prev.preharvestInterval,
+          maxApplicationsPerSeason: product.maxApplicationsPerSeason || prev.maxApplicationsPerSeason,
+          maxRatePerSeason: product.maxRatePerSeason || prev.maxRatePerSeason,
+          methodsAllowed: product.methodsAllowed || prev.methodsAllowed,
+          rate: product.rate || prev.rate,
+          diluentAerial: product.diluentAerial || prev.diluentAerial,
+          diluentGround: product.diluentGround || prev.diluentGround,
+        }));
+        // Clear the localStorage after using the data
+        localStorage.removeItem("selectedAgrianProduct");
+        toast.success("Product data loaded from EPA lookup!");
+      } catch (error) {
+        console.error("Failed to parse selected product data:", error);
+      }
+    }
+  }, [location]); // Re-run when location changes (i.e., when returning from product-lookup)
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -452,7 +481,9 @@ export default function Jobs() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowAgrianLookup(true)}
+                    onClick={() => {
+                      setLocation("/product-lookup");
+                    }}
                   >
                     <Search className="h-4 w-4 mr-2" />
                     EPA Product Lookup
@@ -717,6 +748,7 @@ export default function Jobs() {
         </Card>
       )}
       {/* Agrian Product Lookup Dialog */}
+      {/* Temporarily commented out to debug
       <AgrianProductLookup
         open={showAgrianLookup}
         onClose={() => setShowAgrianLookup(false)}
@@ -732,18 +764,19 @@ export default function Jobs() {
             preharvestInterval: product.preharvestInterval || "",
             maxApplicationsPerSeason: product.maxApplicationsPerSeason || "",
             maxRatePerSeason: product.maxRatePerSeason || "",
-            methodsAllowed: product.methodsAllowed?.join(", ") || "",
+            methodsAllowed: product.methodsAllowed || "",
             rate: product.rate || "",
             diluentAerial: product.diluentAerial || "",
             diluentGround: product.diluentGround || "",
             diluentChemigation: product.diluentChemigation || "",
-            genericConditions: product.genericCondition || "",
           });
+          setShowAgrianLookup(false);
         }}
         defaultCountry="United States"
         defaultState={formData.state}
         defaultCommodity={formData.commodityCrop}
       />
+      */}
     </div>
   );
 }
