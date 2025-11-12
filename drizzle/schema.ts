@@ -97,6 +97,25 @@ export const jobs = mysqlTable("jobs", {
   actualStart: timestamp("actual_start"),
   actualEnd: timestamp("actual_end"),
   notes: text("notes"),
+  // Agricultural details
+  state: varchar("state", { length: 100 }),
+  commodityCrop: varchar("commodity_crop", { length: 200 }),
+  targetPest: varchar("target_pest", { length: 200 }),
+  epaNumber: varchar("epa_number", { length: 100 }),
+  applicationRate: varchar("application_rate", { length: 100 }),
+  applicationMethod: varchar("application_method", { length: 100 }),
+  chemicalProduct: varchar("chemical_product", { length: 200 }),
+  // Crop specifics
+  reEntryInterval: varchar("re_entry_interval", { length: 100 }),
+  preharvestInterval: varchar("preharvest_interval", { length: 100 }),
+  maxApplicationsPerSeason: varchar("max_applications_per_season", { length: 50 }),
+  maxRatePerSeason: varchar("max_rate_per_season", { length: 100 }),
+  methodsAllowed: varchar("methods_allowed", { length: 200 }),
+  rate: varchar("rate", { length: 100 }),
+  diluentAerial: varchar("diluent_aerial", { length: 100 }),
+  diluentGround: varchar("diluent_ground", { length: 100 }),
+  diluentChemigation: varchar("diluent_chemigation", { length: 100 }),
+  genericConditions: text("generic_conditions"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
@@ -163,3 +182,19 @@ export const aiUsage = mysqlTable("ai_usage", {
 
 export type AiUsage = typeof aiUsage.$inferSelect;
 export type InsertAiUsage = typeof aiUsage.$inferInsert;
+
+// Maps table for KML/GPX/GeoJSON file uploads
+export const maps = mysqlTable("maps", {
+  id: int("id").autoincrement().primaryKey(),
+  orgId: int("org_id").notNull().references(() => organizations.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  fileUrl: text("file_url").notNull(),
+  fileKey: varchar("file_key", { length: 500 }).notNull(),
+  fileType: mysqlEnum("file_type", ["kml", "gpx", "geojson"]).notNull(),
+  publicUrl: text("public_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Map = typeof maps.$inferSelect;
+export type InsertMap = typeof maps.$inferInsert;

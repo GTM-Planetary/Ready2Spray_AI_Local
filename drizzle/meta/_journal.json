@@ -15,6 +15,20 @@
       "when": 1762976864948,
       "tag": "0001_moaning_paibok",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1762978674496,
+      "tag": "0002_brave_gorgon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1762979093285,
+      "tag": "0003_dapper_dreaming_celestial",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,8 @@ import Dashboard from "./pages/Dashboard";
 import Jobs from "./pages/Jobs";
 import Customers from "./pages/Customers";
 import Personnel from "./pages/Personnel";
+import Chat from "./pages/Chat";
+import Maps from "./pages/Maps";
 
 function Router() {
   return (
@@ -18,6 +20,8 @@ function Router() {
         <Route path="/jobs" component={Jobs} />
         <Route path="/customers" component={Customers} />
         <Route path="/personnel" component={Personnel} />
+      <Route path="/chat" component={Chat} />
+      <Route path="/maps" component={Maps} />
         <Route path={"/ 404"} component={NotFound} />
         <Route component={NotFound} />
       </Switch>

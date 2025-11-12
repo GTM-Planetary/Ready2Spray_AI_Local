@@ -120,6 +120,111 @@ export const appRouter = router({
       return await getProductsByOrgId(org.id);
     }),
   }),
+
+  // AI Chat router
+  ai: router({
+    listConversations: protectedProcedure.query(async ({ ctx }) => {
+      const { getOrCreateUserOrganization, getConversationsByOrgId } = await import("./db");
+      const org = await getOrCreateUserOrganization(ctx.user.id);
+      return await getConversationsByOrgId(org.id);
+    }),
+    createConversation: protectedProcedure
+      .input((raw: any) => raw)
+      .mutation(async ({ ctx, input }) => {
+        const { getOrCreateUserOrganization, createConversation } = await import("./db");
+        const org = await getOrCreateUserOrganization(ctx.user.id);
+        return await createConversation({ orgId: org.id, ...input });
+      }),
+    getMessages: protectedProcedure
+      .input((raw: any) => raw)
+      .query(async ({ input }) => {
+        const { getMessagesByConversationId } = await import("./db");
+        return await getMessagesByConversationId(input.conversationId);
+      }),
+    sendMessage: protectedProcedure
+      .input((raw: any) => raw)
+      .mutation(async ({ ctx, input }) => {
+        const { createMessage, getOrCreateUserOrganization } = await import("./db");
+        const { invokeLLM } = await import("./_core/llm");
+        
+        // Save user message
+        const userMessage = await createMessage({
+          conversationId: input.conversationId,
+          role: "user",
+          content: input.content,
+        });
+
+        // Get AI response
+        try {
+          const response = await invokeLLM({
+            messages: [
+              {
+                role: "system",
+                content: "You are a helpful agricultural operations assistant for Ready2Spray. You help with job scheduling, weather conditions, EPA compliance, and agricultural operations. Be concise and practical.",
+              },
+              { role: "user", content: input.content },
+            ],
+          });
+
+          const assistantContent = response.choices[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again.";
+
+          // Save assistant message
+          const assistantMessage = await createMessage({
+            conversationId: input.conversationId,
+            role: "assistant",
+            content: assistantContent,
+          });
+
+          return { userMessage, assistantMessage };
+        } catch (error) {
+          // Save error message
+          const errorMessage = await createMessage({
+            conversationId: input.conversationId,
+            role: "assistant",
+            content: "I apologize, but I encountered an error processing your request. Please try again.",
+          });
+          return { userMessage, assistantMessage: errorMessage };
+        }
+      }),
+  }),
+
+  // Maps router
+  maps: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      const { getOrCreateUserOrganization, getMapsByOrgId } = await import("./db");
+      const org = await getOrCreateUserOrganization(ctx.user.id);
+      return await getMapsByOrgId(org.id);
+    }),
+    upload: protectedProcedure
+      .input((raw: any) => raw)
+      .mutation(async ({ ctx, input }) => {
+        const { getOrCreateUserOrganization, createMap } = await import("./db");
+        const { storagePut } = await import("./storage");
+        const org = await getOrCreateUserOrganization(ctx.user.id);
+
+        // Decode base64 and upload to S3
+        const base64Data = input.fileData.split(",")[1];
+        const buffer = Buffer.from(base64Data, "base64");
+        const fileKey = `maps/${org.id}/${Date.now()}-${input.fileName}`;
+        const { url } = await storagePut(fileKey, buffer, `application/${input.fileType}`);
+
+        return await createMap({
+          orgId: org.id,
+          name: input.name,
+          fileUrl: url,
+          fileKey,
+          fileType: input.fileType,
+          publicUrl: url,
+        });
+      }),
+    delete: protectedProcedure
+      .input((raw: any) => raw)
+      .mutation(async ({ input }) => {
+        const { deleteMap } = await import("./db");
+        await deleteMap(input.id);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

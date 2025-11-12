@@ -67,3 +67,45 @@
 ## Bug Fixes
 - [x] Fix navigation sidebar to show proper menu items (Dashboard, Jobs, Customers, Personnel)
 - [x] Ensure preview panel loads correctly
+
+## AI Copilot Chat
+- [x] Conversation history sidebar
+- [x] Quick action buttons (Today's Jobs, Create Job, View Customers, Add Customer, Weather Check)
+- [x] Streaming chat responses
+- [x] Message history persistence
+- [x] New conversation functionality
+
+## Enhanced Personnel Section
+- [x] Table view with all fields (Name, Role, Status, Email, Phone, Pilot License, Applicator License, Last seen)
+- [x] Search functionality
+- [x] Status filter dropdown
+- [x] Role filter dropdown
+- [x] Add person dialog with all fields
+- [x] Training, Schedule, Bulk upload, Raw upload buttons
+
+## Map Manager
+- [x] Upload KML/GPX/GeoJSON files
+- [x] Display uploaded map files list
+- [x] Map preview/viewer
+- [x] Generate public shareable links for maps
+- [x] Delete map files
+
+## Job Form Enhancements
+- [ ] Add customer selection dropdown
+- [ ] Add personnel assignment dropdown
+- [ ] Add scheduled start/end date pickers
+- [ ] Add job location field
+- [ ] Add state/commodity/crop fields
+- [ ] Add target pest field
+- [ ] Add EPA registration number field
+- [ ] Add application rate field
+- [ ] Add application method dropdown
+- [ ] Add chemical product selection
+- [ ] Add crop specifics (Re-Entry Interval, Pre-harvest Interval)
+- [ ] Add max applications per season
+- [ ] Add max rate per season
+- [ ] Add methods allowed field
+- [ ] Add rate field
+- [ ] Add diluent fields (Aerial, Ground)
+- [ ] Add diluent (Chemigation) field
+- [ ] Add generic conditions/notes textarea

@@ -245,3 +245,71 @@ export async function getProductsByOrgId(orgId: number) {
   const { products } = await import("../drizzle/schema");
   return await db.select().from(products).where(eq(products.orgId, orgId));
 }
+
+// AI Conversation helpers
+export async function getConversationsByOrgId(orgId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { aiConversations } = await import("../drizzle/schema");
+  return await db.select().from(aiConversations).where(eq(aiConversations.orgId, orgId)).orderBy(aiConversations.createdAt);
+}
+
+export async function createConversation(data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { aiConversations } = await import("../drizzle/schema");
+  const result = await db.insert(aiConversations).values(data);
+  const insertId = Number(result[0].insertId);
+  const newConv = await db.select().from(aiConversations).where(eq(aiConversations.id, insertId)).limit(1);
+  return newConv[0];
+}
+
+// AI Message helpers
+export async function getMessagesByConversationId(conversationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { aiMessages } = await import("../drizzle/schema");
+  return await db.select().from(aiMessages).where(eq(aiMessages.conversationId, conversationId)).orderBy(aiMessages.createdAt);
+}
+
+export async function createMessage(data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { aiMessages } = await import("../drizzle/schema");
+  const result = await db.insert(aiMessages).values(data);
+  const insertId = Number(result[0].insertId);
+  const newMessage = await db.select().from(aiMessages).where(eq(aiMessages.id, insertId)).limit(1);
+  return newMessage[0];
+}
+
+// Map helpers
+export async function getMapsByOrgId(orgId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { maps } = await import("../drizzle/schema");
+  return await db.select().from(maps).where(eq(maps.orgId, orgId)).orderBy(maps.createdAt);
+}
+
+export async function createMap(data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { maps } = await import("../drizzle/schema");
+  const result = await db.insert(maps).values(data);
+  const insertId = Number(result[0].insertId);
+  const newMap = await db.select().from(maps).where(eq(maps.id, insertId)).limit(1);
+  return newMap[0];
+}
+
+export async function deleteMap(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { maps } = await import("../drizzle/schema");
+  await db.delete(maps).where(eq(maps.id, id));
+}
