@@ -63,3 +63,7 @@
 - [ ] AI-powered chat assistant
 - [ ] Weather integration
 - [ ] Subscription billing
+
+## Bug Fixes
+- [x] Fix navigation sidebar to show proper menu items (Dashboard, Jobs, Customers, Personnel)
+- [x] Ensure preview panel loads correctly
