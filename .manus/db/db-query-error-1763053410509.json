@@ -1,0 +1,21 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS organizations (\n  id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n  name TEXT NOT NULL,\n  owner_id INTEGER NOT NULL REFERENCES users(id),\n  address TEXT,\n  city VARCHAR(100),\n  state VARCHAR(2),\n  zip_code VARCHAR(10),\n  phone VARCHAR(20),\n  email VARCHAR(320),\n  website VARCHAR(255),\n  notes TEXT,\n  stripe_customer_id VARCHAR(255),\n  subscription_id VARCHAR(255),\n  subscription_plan VARCHAR(50) DEFAULT 'FREE' NOT NULL,\n  subscription_status VARCHAR(50) DEFAULT 'active',\n  mode VARCHAR(50) DEFAULT 'ag_aerial' NOT NULL,\n  features_enabled JSONB,\n  created_at TIMESTAMP DEFAULT NOW() NOT NULL,\n  updated_at TIMESTAMP DEFAULT NOW() NOT NULL\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3LAnvSXMR8umuBe.cb88ed38e99c --database 6adCeCxV2Yg38ygq7gdRsu --execute CREATE TABLE IF NOT EXISTS organizations (\n  id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n  name TEXT NOT NULL,\n  owner_id INTEGER NOT NULL REFERENCES users(id),\n  address TEXT,\n  city VARCHAR(100),\n  state VARCHAR(2),\n  zip_code VARCHAR(10),\n  phone VARCHAR(20),\n  email VARCHAR(320),\n  website VARCHAR(255),\n  notes TEXT,\n  stripe_customer_id VARCHAR(255),\n  subscription_id VARCHAR(255),\n  subscription_plan VARCHAR(50) DEFAULT 'FREE' NOT NULL,\n  subscription_status VARCHAR(50) DEFAULT 'active',\n  mode VARCHAR(50) DEFAULT 'ag_aerial' NOT NULL,\n  features_enabled JSONB,\n  created_at TIMESTAMP DEFAULT NOW() NOT NULL,\n  updated_at TIMESTAMP DEFAULT NOW() NOT NULL\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 2 column 54 near \"IDENTITY,",
+    "  name TEXT NOT NULL,",
+    "  owner_id INTEGER NOT NULL REFERENCES users(id),",
+    "  address TEXT,",
+    "  city VARCHAR(100),",
+    "  state VARCHAR(2),",
+    "  zip_code VARCHAR(10),",
+    "  phone VARCHAR(20),",
+    "  email VARCHAR(320),",
+    "  website VARCHAR(255),",
+    "  notes TEXT,",
+    "  stripe_customer_id VARCHAR(255),",
+    "  subscription_id VARCHAR(255),",
+    "  subscription_plan VARCHAR(50) DEFAULT 'FREE' NOT NULL,"
+  ]
+}

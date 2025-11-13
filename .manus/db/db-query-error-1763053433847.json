@@ -1,0 +1,10 @@
+{
+  "query": "INSERT INTO organizations (name, owner_id, email, mode, subscription_plan, features_enabled)\nVALUES (\n  'Ready2Spray AI',\n  1,\n  'wyatt@gtmplanetary.com',\n  'both',\n  'ENTERPRISE',\n  '[\"flight_board\", \"service_plans\", \"zones\", \"equipment_tracking\", \"calendar\", \"integrations\"]'::jsonb\n)\nON CONFLICT DO NOTHING;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3LAnvSXMR8umuBe.cb88ed38e99c --database 6adCeCxV2Yg38ygq7gdRsu --execute INSERT INTO organizations (name, owner_id, email, mode, subscription_plan, features_enabled)\nVALUES (\n  'Ready2Spray AI',\n  1,\n  'wyatt@gtmplanetary.com',\n  'both',\n  'ENTERPRISE',\n  '[\"flight_board\", \"service_plans\", \"zones\", \"equipment_tracking\", \"calendar\", \"integrations\"]'::jsonb\n)\nON CONFLICT DO NOTHING;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 8 column 98 near \"::jsonb",
+    ")",
+    "ON CONFLICT DO NOTHING\""
+  ]
+}
