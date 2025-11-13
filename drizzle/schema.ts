@@ -502,3 +502,87 @@ export const maps = pgTable("maps", {
 
 export type Map = typeof maps.$inferSelect;
 export type InsertMap = typeof maps.$inferInsert;
+
+// Integration tables for Zoho CRM and FieldPulse
+export const integrationTypeEnum = pgEnum("integration_type", ["zoho_crm", "fieldpulse"]);
+export const syncDirectionEnum = pgEnum("sync_direction", ["to_external", "from_external"]);
+export const entityTypeEnum = pgEnum("entity_type", ["customer", "job", "personnel", "site"]);
+export const syncOperationEnum = pgEnum("sync_operation", ["create", "update", "delete"]);
+export const syncStatusEnum = pgEnum("sync_status", ["success", "error", "skipped"]);
+
+export const integrationConnections = pgTable("integration_connections", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  organizationId: integer("organization_id").notNull().references(() => organizations.id),
+  integrationType: integrationTypeEnum("integration_type").notNull(),
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  
+  // Zoho CRM OAuth fields
+  zohoClientId: varchar("zoho_client_id", { length: 255 }),
+  zohoClientSecret: varchar("zoho_client_secret", { length: 255 }),
+  zohoAccessToken: text("zoho_access_token"),
+  zohoRefreshToken: text("zoho_refresh_token"),
+  zohoTokenExpiresAt: timestamp("zoho_token_expires_at"),
+  zohoDataCenter: varchar("zoho_data_center", { length: 50 }),
+  
+  // FieldPulse API Key
+  fieldpulseApiKey: varchar("fieldpulse_api_key", { length: 255 }),
+  
+  // Sync settings
+  syncCustomers: boolean("sync_customers").default(true),
+  syncJobs: boolean("sync_jobs").default(true),
+  syncPersonnel: boolean("sync_personnel").default(false),
+  syncIntervalMinutes: integer("sync_interval_minutes").default(15),
+  lastSyncAt: timestamp("last_sync_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type IntegrationConnection = typeof integrationConnections.$inferSelect;
+export type InsertIntegrationConnection = typeof integrationConnections.$inferInsert;
+
+export const integrationFieldMappings = pgTable("integration_field_mappings", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  connectionId: integer("connection_id").notNull().references(() => integrationConnections.id),
+  entityType: entityTypeEnum("entity_type").notNull(),
+  ready2sprayField: varchar("ready2spray_field", { length: 100 }).notNull(),
+  externalField: varchar("external_field", { length: 100 }).notNull(),
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type IntegrationFieldMapping = typeof integrationFieldMappings.$inferSelect;
+export type InsertIntegrationFieldMapping = typeof integrationFieldMappings.$inferInsert;
+
+export const integrationSyncLogs = pgTable("integration_sync_logs", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  connectionId: integer("connection_id").notNull().references(() => integrationConnections.id),
+  syncDirection: syncDirectionEnum("sync_direction").notNull(),
+  entityType: entityTypeEnum("entity_type").notNull(),
+  entityId: integer("entity_id").notNull(),
+  externalId: varchar("external_id", { length: 255 }),
+  operation: syncOperationEnum("operation").notNull(),
+  status: syncStatusEnum("status").notNull(),
+  errorMessage: text("error_message"),
+  requestData: json("request_data"),
+  responseData: json("response_data"),
+  syncedAt: timestamp("synced_at").defaultNow().notNull(),
+});
+
+export type IntegrationSyncLog = typeof integrationSyncLogs.$inferSelect;
+export type InsertIntegrationSyncLog = typeof integrationSyncLogs.$inferInsert;
+
+export const integrationEntityMappings = pgTable("integration_entity_mappings", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  connectionId: integer("connection_id").notNull().references(() => integrationConnections.id),
+  entityType: entityTypeEnum("entity_type").notNull(),
+  ready2sprayId: integer("ready2spray_id").notNull(),
+  externalId: varchar("external_id", { length: 255 }).notNull(),
+  lastSyncedAt: timestamp("last_synced_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type IntegrationEntityMapping = typeof integrationEntityMappings.$inferSelect;
+export type InsertIntegrationEntityMapping = typeof integrationEntityMappings.$inferInsert;

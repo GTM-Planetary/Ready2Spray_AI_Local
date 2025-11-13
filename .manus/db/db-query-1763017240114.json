@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS integration_sync_logs (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  connection_id INT NOT NULL,\n  sync_direction ENUM('to_external', 'from_external') NOT NULL,\n  entity_type ENUM('customer', 'job', 'personnel', 'site') NOT NULL,\n  entity_id INT NOT NULL,\n  external_id VARCHAR(255),\n  operation ENUM('create', 'update', 'delete') NOT NULL,\n  status ENUM('success', 'error', 'skipped') NOT NULL,\n  error_message TEXT,\n  request_data JSON,\n  response_data JSON,\n  synced_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  \n  FOREIGN KEY (connection_id) REFERENCES integration_connections(id) ON DELETE CASCADE,\n  INDEX idx_connection_entity (connection_id, entity_type, entity_id),\n  INDEX idx_synced_at (synced_at)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3LAnvSXMR8umuBe.cb88ed38e99c --database 6adCeCxV2Yg38ygq7gdRsu --execute CREATE TABLE IF NOT EXISTS integration_sync_logs (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  connection_id INT NOT NULL,\n  sync_direction ENUM('to_external', 'from_external') NOT NULL,\n  entity_type ENUM('customer', 'job', 'personnel', 'site') NOT NULL,\n  entity_id INT NOT NULL,\n  external_id VARCHAR(255),\n  operation ENUM('create', 'update', 'delete') NOT NULL,\n  status ENUM('success', 'error', 'skipped') NOT NULL,\n  error_message TEXT,\n  request_data JSON,\n  response_data JSON,\n  synced_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  \n  FOREIGN KEY (connection_id) REFERENCES integration_connections(id) ON DELETE CASCADE,\n  INDEX idx_connection_entity (connection_id, entity_type, entity_id),\n  INDEX idx_synced_at (synced_at)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 390
+}

@@ -423,3 +423,37 @@
 - [x] Add sensitive areas marking (bee yards, water sources, etc.) - integrated into SiteMapDrawer
 - [x] Site detail information visible in list cards
 - [x] Test Sites CRUD operations end-to-end (UI loads correctly, ready for user testing)
+
+
+## Phase 4: Third-Party Integrations (IN PROGRESS)
+
+### Zoho CRM Integration
+- [x] Research Zoho CRM API documentation and authentication methods (OAuth 2.0, V8 APIs)
+- [x] Design data mapping between Ready2Spray and Zoho CRM entities (Contacts→Customers, Deals→Jobs)
+- [x] Create integration settings table in database (integration_connections, field_mappings, sync_logs, entity_mappings)
+- [ ] Build Zoho CRM OAuth flow
+- [ ] Implement customer sync (Ready2Spray → Zoho CRM)
+- [ ] Implement customer sync (Zoho CRM → Ready2Spray)
+- [ ] Implement job/deal sync bidirectionally
+- [ ] Add webhook handler for Zoho CRM updates
+- [ ] Build integration settings UI in Settings page
+- [ ] Test Zoho CRM integration end-to-end
+
+### FieldPulse Integration
+- [x] Research FieldPulse API documentation and authentication (API Key, 50 req/sec limit)
+- [x] Design data mapping between Ready2Spray and FieldPulse entities (Customers→Customers, Jobs→Jobs)
+- [ ] Implement FieldPulse API key authentication
+- [ ] Implement customer sync (Ready2Spray → FieldPulse)
+- [ ] Implement customer sync (FieldPulse → Ready2Spray)
+- [ ] Implement job sync bidirectionally
+- [ ] Implement personnel/technician sync
+- [ ] Add webhook handler for FieldPulse updates
+- [ ] Build FieldPulse settings UI
+- [ ] Test FieldPulse integration end-to-end
+
+### Integration Management
+- [ ] Create integration status dashboard
+- [ ] Add sync logs and error tracking
+- [ ] Implement manual sync triggers
+- [ ] Add conflict resolution UI for duplicate records
+- [ ] Test both integrations working together

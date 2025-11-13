@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS integration_field_mappings (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  connection_id INT NOT NULL,\n  entity_type ENUM('customer', 'job', 'personnel', 'site') NOT NULL,\n  ready2spray_field VARCHAR(100) NOT NULL,\n  external_field VARCHAR(100) NOT NULL,\n  is_enabled BOOLEAN DEFAULT true NOT NULL,\n  created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,\n  \n  FOREIGN KEY (connection_id) REFERENCES integration_connections(id) ON DELETE CASCADE,\n  UNIQUE KEY unique_mapping (connection_id, entity_type, ready2spray_field)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3LAnvSXMR8umuBe.cb88ed38e99c --database 6adCeCxV2Yg38ygq7gdRsu --execute CREATE TABLE IF NOT EXISTS integration_field_mappings (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  connection_id INT NOT NULL,\n  entity_type ENUM('customer', 'job', 'personnel', 'site') NOT NULL,\n  ready2spray_field VARCHAR(100) NOT NULL,\n  external_field VARCHAR(100) NOT NULL,\n  is_enabled BOOLEAN DEFAULT true NOT NULL,\n  created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,\n  \n  FOREIGN KEY (connection_id) REFERENCES integration_connections(id) ON DELETE CASCADE,\n  UNIQUE KEY unique_mapping (connection_id, entity_type, ready2spray_field)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 310
+}
