@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 export default function Customers() {
   const [open, setOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -30,19 +31,22 @@ export default function Customers() {
       utils.customers.list.invalidate();
       toast.success("Customer created successfully!");
       setOpen(false);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        address: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        notes: "",
-      });
+      resetForm();
     },
     onError: (error) => {
       toast.error(`Failed to create customer: ${error.message}`);
+    },
+  });
+
+  const updateMutation = trpc.customers.update.useMutation({
+    onSuccess: () => {
+      utils.customers.list.invalidate();
+      toast.success("Customer updated successfully!");
+      setOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error(`Failed to update customer: ${error.message}`);
     },
   });
 
@@ -53,10 +57,49 @@ export default function Customers() {
     },
   });
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      notes: "",
+    });
+    setEditingCustomer(null);
+  };
+
+  const handleOpenDialog = (customer?: any) => {
+    if (customer) {
+      setEditingCustomer(customer);
+      setFormData({
+        name: customer.name || "",
+        email: customer.email || "",
+        phone: customer.phone || "",
+        address: customer.address || "",
+        city: customer.city || "",
+        state: customer.state || "",
+        zipCode: customer.zipCode || "",
+        notes: customer.notes || "",
+      });
+    } else {
+      resetForm();
+    }
+    setOpen(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createMutation.mutate(formData);
+    if (editingCustomer) {
+      updateMutation.mutate({ id: editingCustomer.id, ...formData });
+    } else {
+      createMutation.mutate(formData);
+    }
   };
+
+  const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="space-y-6">
@@ -67,9 +110,12 @@ export default function Customers() {
             Manage your customer database
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => {
+          setOpen(isOpen);
+          if (!isOpen) resetForm();
+        }}>
           <DialogTrigger asChild>
-            <Button>
+            <Button onClick={() => handleOpenDialog()}>
               <Plus className="mr-2 h-4 w-4" />
               New Customer
             </Button>
@@ -77,9 +123,13 @@ export default function Customers() {
           <DialogContent className="sm:max-w-[500px]">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
-                <DialogTitle>Add New Customer</DialogTitle>
+                <DialogTitle>
+                  {editingCustomer ? "Edit Customer" : "Add New Customer"}
+                </DialogTitle>
                 <DialogDescription>
-                  Create a new customer record
+                  {editingCustomer
+                    ? "Update customer information"
+                    : "Create a new customer record"}
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
@@ -177,11 +227,11 @@ export default function Customers() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending && (
+                <Button type="submit" disabled={isPending}>
+                  {isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Create Customer
+                  {editingCustomer ? "Update Customer" : "Create Customer"}
                 </Button>
               </DialogFooter>
             </form>
@@ -238,7 +288,7 @@ export default function Customers() {
                     variant="outline"
                     size="sm"
                     className="flex-1"
-                    onClick={() => toast.info("Edit functionality coming soon")}
+                    onClick={() => handleOpenDialog(customer)}
                   >
                     Edit
                   </Button>
@@ -261,7 +311,7 @@ export default function Customers() {
             <p className="text-muted-foreground mb-4">
               No customers yet. Add your first customer to get started!
             </p>
-            <Button onClick={() => setOpen(true)}>
+            <Button onClick={() => handleOpenDialog()}>
               <Plus className="mr-2 h-4 w-4" />
               Add First Customer
             </Button>

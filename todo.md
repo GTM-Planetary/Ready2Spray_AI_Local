@@ -236,3 +236,36 @@
 - [x] Verified DNS resolution and connectivity to pooler endpoint
 - [x] Tested login flow end-to-end - SUCCESS
 - [x] User can now sign in and access dashboard
+
+## Core CRUD Operations Testing
+- [ ] Test organization creation
+- [ ] Test organization read/list
+- [ ] Test organization update
+- [ ] Test organization delete
+- [ ] Test customer creation
+- [ ] Test customer read/list
+- [ ] Test customer update
+- [ ] Test customer delete
+- [ ] Test personnel creation
+- [ ] Test personnel read/list
+- [ ] Test personnel update
+- [ ] Test personnel delete
+- [ ] Test job creation
+- [ ] Test job read/list
+- [ ] Test job update
+- [ ] Test job delete
+- [ ] Verify dashboard statistics update correctly
+
+## Implement Full CRUD Operations
+- [x] Customer CREATE - Working
+- [x] Customer READ - Working
+- [x] Customer UPDATE - Edit functionality implemented
+- [x] Customer DELETE - Working
+- [x] Personnel CREATE - Working
+- [x] Personnel READ - Working
+- [x] Personnel UPDATE - Edit functionality implemented
+- [x] Personnel DELETE - Delete functionality implemented
+- [x] Job CREATE - Working
+- [x] Job READ - Working
+- [x] Job UPDATE - Edit functionality implemented
+- [x] Job DELETE - Working

@@ -15,6 +15,7 @@ export default function Jobs() {
   const [location, setLocation] = useLocation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAgrianLookup, setShowAgrianLookup] = useState(false);
+  const [editingJob, setEditingJob] = useState<any>(null);
 
   // Check for selected product data from ProductLookup page
   useEffect(() => {
@@ -83,43 +84,98 @@ export default function Jobs() {
   const { data: personnel } = trpc.personnel.list.useQuery();
   const utils = trpc.useUtils();
 
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      description: "",
+      jobType: "crop_dusting",
+      status: "pending",
+      priority: "medium",
+      locationAddress: "",
+      customerId: "",
+      assignedPersonnelId: "",
+      scheduledStart: "",
+      scheduledEnd: "",
+      state: "",
+      commodityCrop: "",
+      targetPest: "",
+      epaNumber: "",
+      applicationRate: "",
+      applicationMethod: "",
+      chemicalProduct: "",
+      reEntryInterval: "",
+      preharvestInterval: "",
+      maxApplicationsPerSeason: "",
+      maxRatePerSeason: "",
+      methodsAllowed: "",
+      rate: "",
+      diluentAerial: "",
+      diluentGround: "",
+      diluentChemigation: "",
+      genericConditions: "",
+    });
+    setEditingJob(null);
+  };
+
+  const handleOpenForm = (job?: any) => {
+    if (job) {
+      setEditingJob(job);
+      setFormData({
+        title: job.title || "",
+        description: job.description || "",
+        jobType: job.jobType || "crop_dusting",
+        status: job.status || "pending",
+        priority: job.priority || "medium",
+        locationAddress: job.locationAddress || "",
+        customerId: job.customerId?.toString() || "",
+        assignedPersonnelId: job.assignedPersonnelId?.toString() || "",
+        scheduledStart: job.scheduledStart ? new Date(job.scheduledStart).toISOString().slice(0, 16) : "",
+        scheduledEnd: job.scheduledEnd ? new Date(job.scheduledEnd).toISOString().slice(0, 16) : "",
+        state: job.state || "",
+        commodityCrop: job.commodityCrop || "",
+        targetPest: job.targetPest || "",
+        epaNumber: job.epaNumber || "",
+        applicationRate: job.applicationRate || "",
+        applicationMethod: job.applicationMethod || "",
+        chemicalProduct: job.chemicalProduct || "",
+        reEntryInterval: job.reEntryInterval || "",
+        preharvestInterval: job.preharvestInterval || "",
+        maxApplicationsPerSeason: job.maxApplicationsPerSeason || "",
+        maxRatePerSeason: job.maxRatePerSeason || "",
+        methodsAllowed: job.methodsAllowed || "",
+        rate: job.rate || "",
+        diluentAerial: job.diluentAerial || "",
+        diluentGround: job.diluentGround || "",
+        diluentChemigation: job.diluentChemigation || "",
+        genericConditions: job.genericConditions || "",
+      });
+    } else {
+      resetForm();
+    }
+    setShowCreateForm(true);
+  };
+
   const createMutation = trpc.jobs.create.useMutation({
     onSuccess: () => {
       utils.jobs.list.invalidate();
       toast.success("Job created successfully!");
       setShowCreateForm(false);
-      setFormData({
-        title: "",
-        description: "",
-        jobType: "crop_dusting",
-        status: "pending",
-        priority: "medium",
-        locationAddress: "",
-        customerId: "",
-        assignedPersonnelId: "",
-        scheduledStart: "",
-        scheduledEnd: "",
-        state: "",
-        commodityCrop: "",
-        targetPest: "",
-        epaNumber: "",
-        applicationRate: "",
-        applicationMethod: "",
-        chemicalProduct: "",
-        reEntryInterval: "",
-        preharvestInterval: "",
-        maxApplicationsPerSeason: "",
-        maxRatePerSeason: "",
-        methodsAllowed: "",
-        rate: "",
-        diluentAerial: "",
-        diluentGround: "",
-        diluentChemigation: "",
-        genericConditions: "",
-      });
+      resetForm();
     },
     onError: (error) => {
       toast.error(`Failed to create job: ${error.message}`);
+    },
+  });
+
+  const updateMutation = trpc.jobs.update.useMutation({
+    onSuccess: () => {
+      utils.jobs.list.invalidate();
+      toast.success("Job updated successfully!");
+      setShowCreateForm(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error(`Failed to update job: ${error.message}`);
     },
   });
 
@@ -160,7 +216,11 @@ export default function Jobs() {
       delete submitData.scheduledEnd;
     }
     
-    createMutation.mutate(submitData);
+    if (editingJob) {
+      updateMutation.mutate({ id: editingJob.id, ...submitData });
+    } else {
+      createMutation.mutate(submitData);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -204,9 +264,9 @@ export default function Jobs() {
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create New Job</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{editingJob ? "Edit Job" : "Create New Job"}</h1>
           <p className="text-muted-foreground">
-            Schedule a new service job for your team
+            {editingJob ? "Update job information" : "Schedule a new service job for your team"}
           </p>
         </div>
 
@@ -645,11 +705,11 @@ export default function Jobs() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending && (
+            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+              {(createMutation.isPending || updateMutation.isPending) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Create Job
+              {editingJob ? "Update Job" : "Create Job"}
             </Button>
           </div>
         </form>
@@ -666,7 +726,7 @@ export default function Jobs() {
             Manage your agricultural spray jobs
           </p>
         </div>
-        <Button onClick={() => setShowCreateForm(true)}>
+        <Button onClick={() => handleOpenForm()}>
           <Plus className="mr-2 h-4 w-4" />
           New Job
         </Button>
@@ -719,7 +779,7 @@ export default function Jobs() {
                     variant="outline"
                     size="sm"
                     className="flex-1"
-                    onClick={() => toast.info("Edit functionality coming soon")}
+                    onClick={() => handleOpenForm(job)}
                   >
                     Edit
                   </Button>
@@ -742,7 +802,7 @@ export default function Jobs() {
             <p className="text-muted-foreground mb-4">
               No jobs yet. Create your first job to get started!
             </p>
-            <Button onClick={() => setShowCreateForm(true)}>
+            <Button onClick={() => handleOpenForm()}>
               <Plus className="mr-2 h-4 w-4" />
               Create First Job
             </Button>

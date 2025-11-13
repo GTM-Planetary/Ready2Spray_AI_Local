@@ -34,6 +34,7 @@ export default function Personnel() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingPerson, setEditingPerson] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -51,15 +52,7 @@ export default function Personnel() {
     onSuccess: () => {
       utils.personnel.list.invalidate();
       setIsAddDialogOpen(false);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        role: "technician",
-        status: "active",
-        certifications: "",
-        notes: "",
-      });
+      resetForm();
       toast.success("Personnel added successfully");
     },
     onError: (error: any) => {
@@ -67,9 +60,66 @@ export default function Personnel() {
     },
   });
 
+  const updatePersonnelMutation = trpc.personnel.update.useMutation({
+    onSuccess: () => {
+      utils.personnel.list.invalidate();
+      setIsAddDialogOpen(false);
+      resetForm();
+      toast.success("Personnel updated successfully");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to update personnel: ${error.message}`);
+    },
+  });
+
+  const deletePersonnelMutation = trpc.personnel.delete.useMutation({
+    onSuccess: () => {
+      utils.personnel.list.invalidate();
+      toast.success("Personnel deleted successfully");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to delete personnel: ${error.message}`);
+    },
+  });
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      role: "technician",
+      status: "active",
+      certifications: "",
+      notes: "",
+    });
+    setEditingPerson(null);
+  };
+
+  const handleOpenDialog = (person?: any) => {
+    if (person) {
+      setEditingPerson(person);
+      setFormData({
+        name: person.name || "",
+        email: person.email || "",
+        phone: person.phone || "",
+        role: person.role || "technician",
+        status: person.status || "active",
+        certifications: person.certifications || "",
+        notes: person.notes || "",
+      });
+    } else {
+      resetForm();
+    }
+    setIsAddDialogOpen(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createPersonnelMutation.mutate(formData);
+    if (editingPerson) {
+      updatePersonnelMutation.mutate({ id: editingPerson.id, ...formData });
+    } else {
+      createPersonnelMutation.mutate(formData);
+    }
   };
 
   const filteredPersonnel = personnel?.filter((person) => {
@@ -127,16 +177,19 @@ export default function Personnel() {
             <Upload className="mr-2 h-4 w-4" />
             Raw upload
           </Button>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <Dialog open={isAddDialogOpen} onOpenChange={(isOpen) => {
+            setIsAddDialogOpen(isOpen);
+            if (!isOpen) resetForm();
+          }}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={() => handleOpenDialog()}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add person
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Add person</DialogTitle>
+                <DialogTitle>{editingPerson ? "Edit person" : "Add person"}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -238,8 +291,8 @@ export default function Personnel() {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={createPersonnelMutation.isPending}>
-                    {createPersonnelMutation.isPending ? "Adding..." : "Save"}
+                  <Button type="submit" disabled={createPersonnelMutation.isPending || updatePersonnelMutation.isPending}>
+                    {(createPersonnelMutation.isPending || updatePersonnelMutation.isPending) ? "Saving..." : "Save"}
                   </Button>
                 </div>
               </form>
@@ -339,13 +392,24 @@ export default function Personnel() {
                         : "-"}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toast.info("Edit feature coming soon")}
-                      >
-                        Edit
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenDialog(person)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => deletePersonnelMutation.mutate({ id: person.id })}
+                          disabled={deletePersonnelMutation.isPending}
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
