@@ -10,6 +10,7 @@ import { Plus, Pencil, Trash2, Wrench, Plane, Truck, Loader2, AlertCircle } from
 import { useState } from "react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { MaintenanceScheduler } from "@/components/MaintenanceScheduler";
 
 type EquipmentFormData = {
   name: string;
@@ -48,6 +49,8 @@ export default function Equipment() {
   const [editingEquipment, setEditingEquipment] = useState<any>(null);
   const [formData, setFormData] = useState<EquipmentFormData>(initialFormData);
   const [filterType, setFilterType] = useState<string>("all");
+  const [maintenanceEquipment, setMaintenanceEquipment] = useState<any>(null);
+  const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
 
   const { data: equipment, isLoading } = trpc.equipment.list.useQuery();
   const utils = trpc.useUtils();
@@ -471,24 +474,38 @@ export default function Equipment() {
                       </Alert>
                     )}
                 </div>
-                <div className="flex gap-2 mt-4">
+                <div className="flex flex-col gap-2 mt-4">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleEdit(equip)}
+                    >
+                      <Pencil className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-destructive hover:text-destructive"
+                      onClick={() => handleDelete(equip.id, equip.name)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
-                    className="flex-1"
-                    onClick={() => handleEdit(equip)}
+                    className="w-full"
+                    onClick={() => {
+                      setMaintenanceEquipment(equip);
+                      setMaintenanceDialogOpen(true);
+                    }}
                   >
-                    <Pencil className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-destructive hover:text-destructive"
-                    onClick={() => handleDelete(equip.id, equip.name)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
+                    <Wrench className="h-4 w-4 mr-1" />
+                    Maintenance
                   </Button>
                 </div>
               </CardContent>
@@ -511,6 +528,24 @@ export default function Equipment() {
           </CardContent>
         </Card>
       )}
+
+      {/* Maintenance Dialog */}
+      <Dialog open={maintenanceDialogOpen} onOpenChange={setMaintenanceDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Maintenance Schedule - {maintenanceEquipment?.name}</DialogTitle>
+            <DialogDescription>
+              Manage maintenance tasks and history for this equipment
+            </DialogDescription>
+          </DialogHeader>
+          {maintenanceEquipment && (
+            <MaintenanceScheduler
+              equipmentId={maintenanceEquipment.id}
+              equipmentName={maintenanceEquipment.name}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

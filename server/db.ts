@@ -1,7 +1,7 @@
-import { eq, sql } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { InsertUser, users, equipment, InsertEquipment, maintenanceTasks, InsertMaintenanceTask } from "../drizzle/schema";
+import { InsertUser, users, equipment, InsertEquipment, maintenanceTasks, InsertMaintenanceTask, servicePlans, InsertServicePlan } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -906,4 +906,61 @@ export async function deleteMaintenanceTask(id: number) {
   if (!db) throw new Error("Database not available");
   
   await db.delete(maintenanceTasks).where(eq(maintenanceTasks.id, id));
+}
+
+
+// ============= Service Plans =============
+
+export async function getServicePlansByOrgId(orgId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select()
+    .from(servicePlans)
+    .where(eq(servicePlans.orgId, orgId))
+    .orderBy(desc(servicePlans.createdAt));
+  
+  return result;
+}
+
+export async function getServicePlanById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db
+    .select()
+    .from(servicePlans)
+    .where(eq(servicePlans.id, id))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createServicePlan(plan: InsertServicePlan) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(servicePlans).values(plan).returning();
+  return result[0];
+}
+
+export async function updateServicePlan(id: number, plan: Partial<InsertServicePlan>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .update(servicePlans)
+    .set({ ...plan, updatedAt: new Date() })
+    .where(eq(servicePlans.id, id))
+    .returning();
+  
+  return result[0];
+}
+
+export async function deleteServicePlan(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(servicePlans).where(eq(servicePlans.id, id));
 }

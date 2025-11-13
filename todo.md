@@ -558,21 +558,27 @@
 - [x] Create maintenance database procedures (getTasks, createTask, updateTask, deleteTask, completeTask)
 - [x] Add maintenance validation schemas
 - [x] Create maintenance tRPC router (listByEquipment, listAll, create, update, complete, delete)
-- [ ] Build MaintenanceScheduler component for Equipment page
-- [ ] Add recurring task creation form
-- [ ] Display maintenance history timeline
-- [ ] Add maintenance due alerts
-- [ ] Integrate with Equipment page
+- [x] Build MaintenanceScheduler component for Equipment page
+- [x] Add recurring task creation form
+- [x] Display maintenance history timeline
+- [x] Add maintenance due alerts
+- [x] Integrate MaintenanceScheduler into Equipment page
+  - [x] Add Maintenance button to equipment cards
+  - [x] Show maintenance tasks dialog for each equipment
+  - [x] Add quick access to create/complete tasks via dialog
 
-### Service Plans System
-- [ ] Create service plans database procedures
+#### Service Plans System (IN PROGRESS)
+- [ ] Create service plans database procedures (create, update, delete, list)
 - [ ] Add service plans validation schemas
 - [ ] Create service plans tRPC router
-- [ ] Build ServicePlans.tsx page
-- [ ] Add service plan creation form (recurring schedules)
-- [ ] Implement automated job generation from service plans
-- [ ] Add customer zone assignment
-- [ ] Create service plan dashboard
+- [ ] Build ServicePlans.tsx page with CRUD interface
+- [ ] Add recurring service agreement creation form
+- [ ] Implement automated job generation logic
+- [ ] Add customer and zone assignment
+- [ ] Test service plans workflow
+
+### GitHub Repository Update
+- [ ] Push all new code to wbaguley/Ready2Spray_AI repository ] Create service plan dashboard
 - [ ] Add route to sidebar navigation
 
 ### Application Records Export
