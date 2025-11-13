@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Building2, Save } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -215,6 +216,236 @@ export default function Settings() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Job Statuses Section */}
+      <JobStatusesSection />
     </div>
+  );
+}
+
+// Job Statuses Management Component
+function JobStatusesSection() {
+  const [isAddingStatus, setIsAddingStatus] = useState(false);
+  const [editingStatus, setEditingStatus] = useState<any>(null);
+  const [statusForm, setStatusForm] = useState({
+    name: "",
+    color: "#3B82F6",
+    category: "pending" as "pending" | "active" | "completed" | "cancelled",
+  });
+
+  const { data: jobStatuses, isLoading } = trpc.jobStatuses.list.useQuery();
+  const utils = trpc.useUtils();
+
+  const createMutation = trpc.jobStatuses.create.useMutation({
+    onSuccess: () => {
+      utils.jobStatuses.list.invalidate();
+      toast.success("Status created successfully!");
+      resetForm();
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to create status: ${error.message}`);
+    },
+  });
+
+  const updateMutation = trpc.jobStatuses.update.useMutation({
+    onSuccess: () => {
+      utils.jobStatuses.list.invalidate();
+      toast.success("Status updated successfully!");
+      resetForm();
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to update status: ${error.message}`);
+    },
+  });
+
+  const deleteMutation = trpc.jobStatuses.delete.useMutation({
+    onSuccess: () => {
+      utils.jobStatuses.list.invalidate();
+      toast.success("Status deleted successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to delete status: ${error.message}`);
+    },
+  });
+
+  const resetForm = () => {
+    setStatusForm({ name: "", color: "#3B82F6", category: "pending" });
+    setIsAddingStatus(false);
+    setEditingStatus(null);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingStatus) {
+      updateMutation.mutate({ id: editingStatus.id, ...statusForm });
+    } else {
+      // Get the highest display order and add 1
+      const maxOrder = Math.max(...(jobStatuses?.map(s => s.displayOrder) || [0]));
+      createMutation.mutate({ ...statusForm, displayOrder: maxOrder + 1 });
+    }
+  };
+
+  const handleEdit = (status: any) => {
+    setEditingStatus(status);
+    setStatusForm({
+      name: status.name,
+      color: status.color,
+      category: status.category,
+    });
+    setIsAddingStatus(true);
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm("Are you sure you want to delete this status?")) {
+      deleteMutation.mutate({ id });
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Job Statuses</CardTitle>
+            <CardDescription>
+              Customize your job workflow stages
+            </CardDescription>
+          </div>
+          <Button
+            onClick={() => setIsAddingStatus(!isAddingStatus)}
+            variant={isAddingStatus ? "outline" : "default"}
+          >
+            {isAddingStatus ? "Cancel" : "+ Add Status"}
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {isAddingStatus && (
+          <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-lg">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="statusName">Status Name</Label>
+                <Input
+                  id="statusName"
+                  value={statusForm.name}
+                  onChange={(e) =>
+                    setStatusForm({ ...statusForm, name: e.target.value })
+                  }
+                  placeholder="e.g., Scheduled, In Progress, Completed"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="statusColor">Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="statusColor"
+                      type="color"
+                      value={statusForm.color}
+                      onChange={(e) =>
+                        setStatusForm({ ...statusForm, color: e.target.value })
+                      }
+                      className="w-20 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={statusForm.color}
+                      onChange={(e) =>
+                        setStatusForm({ ...statusForm, color: e.target.value })
+                      }
+                      placeholder="#3B82F6"
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="statusCategory">Category</Label>
+                  <Select
+                    value={statusForm.category}
+                    onValueChange={(value: any) =>
+                      setStatusForm({ ...statusForm, category: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending (Not Started)</SelectItem>
+                      <SelectItem value="active">Active (In Progress)</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={resetForm}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
+                {(createMutation.isPending || updateMutation.isPending) && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {editingStatus ? "Update Status" : "Create Status"}
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {jobStatuses?.map((status) => (
+              <div
+                key={status.id}
+                className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: status.color }}
+                  />
+                  <div>
+                    <p className="font-medium">{status.name}</p>
+                    <p className="text-sm text-muted-foreground capitalize">
+                      {status.category.replace("_", " ")}
+                    </p>
+                  </div>
+                  {status.isDefault && (
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                      Default
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit(status)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(status.id)}
+                    disabled={status.isDefault}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

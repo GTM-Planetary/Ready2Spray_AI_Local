@@ -51,7 +51,7 @@ export default function Jobs() {
     title: "",
     description: "",
     jobType: "crop_dusting" as const,
-    status: "pending" as const,
+    status: "",
     priority: "medium" as const,
     locationAddress: "",
     customerId: "",
@@ -82,7 +82,12 @@ export default function Jobs() {
   const { data: jobs, isLoading } = trpc.jobs.list.useQuery();
   const { data: customers } = trpc.customers.list.useQuery();
   const { data: personnel } = trpc.personnel.list.useQuery();
+  const { data: jobStatuses } = trpc.jobStatuses.list.useQuery();
   const utils = trpc.useUtils();
+  
+  // Get default status ID
+  const defaultStatus = jobStatuses?.find(s => s.isDefault);
+  const defaultStatusId = defaultStatus?.id.toString() || jobStatuses?.[0]?.id.toString() || "";
 
   const resetForm = () => {
     setFormData({
@@ -124,7 +129,7 @@ export default function Jobs() {
         title: job.title || "",
         description: job.description || "",
         jobType: job.jobType || "crop_dusting",
-        status: job.status || "pending",
+        status: job.statusId?.toString() || "",
         priority: job.priority || "medium",
         locationAddress: job.locationAddress || "",
         customerId: job.customerId?.toString() || "",
@@ -329,6 +334,32 @@ export default function Jobs() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    value={formData.status || defaultStatusId}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, status: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {jobStatuses?.map((status) => (
+                        <SelectItem key={status.id} value={status.id.toString()}>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: status.color }}
+                            />
+                            {status.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="description">Description</Label>
@@ -758,9 +789,13 @@ export default function Jobs() {
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-2">
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(job.status)}`}
+                    className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                    style={{
+                      backgroundColor: job.statusColor ? `${job.statusColor}20` : '#FEF3C7',
+                      color: job.statusColor || '#92400E'
+                    }}
                   >
-                    {job.status.replace("_", " ")}
+                    {job.statusName || 'Unknown'}
                   </span>
                 </div>
                 {job.locationAddress && (
@@ -773,6 +808,10 @@ export default function Jobs() {
                   <p className="text-sm text-muted-foreground line-clamp-2">
                     {job.description}
                   </p>
+                )}
+                {/* Status Transition Button */}
+                {job.statusCategory !== 'completed' && job.statusCategory !== 'cancelled' && (
+                  <StatusTransitionButton job={job} jobStatuses={jobStatuses} />
                 )}
                 <div className="flex gap-2 pt-2">
                   <Button
@@ -840,5 +879,68 @@ export default function Jobs() {
       />
       */}
     </div>
+  );
+}
+
+// Status Transition Button Component
+function StatusTransitionButton({ job, jobStatuses }: { job: any; jobStatuses: any[] | undefined }) {
+  const utils = trpc.useUtils();
+  
+  const updateMutation = trpc.jobs.update.useMutation({
+    onSuccess: () => {
+      utils.jobs.list.invalidate();
+      toast.success("Job status updated!");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to update status: ${error.message}`);
+    },
+  });
+
+  if (!jobStatuses || jobStatuses.length === 0) return null;
+
+  // Find the next logical status based on current category
+  const currentCategory = job.statusCategory;
+  let nextStatus;
+
+  if (currentCategory === 'pending') {
+    // Move to first 'active' status
+    nextStatus = jobStatuses.find(s => s.category === 'active');
+  } else if (currentCategory === 'active') {
+    // Move to first 'completed' status
+    nextStatus = jobStatuses.find(s => s.category === 'completed');
+  }
+
+  if (!nextStatus) return null;
+
+  const handleTransition = () => {
+    updateMutation.mutate({
+      id: job.id,
+      status: nextStatus.id.toString(),
+    });
+  };
+
+  const getButtonText = () => {
+    if (currentCategory === 'pending') return `Start: ${nextStatus.name}`;
+    if (currentCategory === 'active') return `Complete: ${nextStatus.name}`;
+    return `Move to ${nextStatus.name}`;
+  };
+
+  return (
+    <Button
+      variant="default"
+      size="sm"
+      className="w-full"
+      onClick={handleTransition}
+      disabled={updateMutation.isPending}
+      style={{
+        backgroundColor: nextStatus.color,
+        borderColor: nextStatus.color,
+      }}
+    >
+      {updateMutation.isPending && (
+        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+      )}
+      {getButtonText()}
+    </Button>
   );
 }

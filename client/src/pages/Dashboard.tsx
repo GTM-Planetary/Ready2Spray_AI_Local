@@ -39,9 +39,9 @@ export default function Dashboard() {
     },
   ];
 
-  const pendingJobs = jobs?.filter((j) => j.status === "pending").length || 0;
-  const inProgressJobs = jobs?.filter((j) => j.status === "in_progress").length || 0;
-  const completedJobs = jobs?.filter((j) => j.status === "completed").length || 0;
+  const pendingJobs = jobs?.filter((j) => j.statusCategory === "pending").length || 0;
+  const inProgressJobs = jobs?.filter((j) => j.statusCategory === "active").length || 0;
+  const completedJobs = jobs?.filter((j) => j.statusCategory === "completed").length || 0;
 
   return (
     <div className="space-y-6">
@@ -140,15 +140,13 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        job.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : job.status === "in_progress"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-yellow-100 text-yellow-800"
-                      }`}
+                      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                      style={{
+                        backgroundColor: job.statusColor ? `${job.statusColor}20` : '#FEF3C7',
+                        color: job.statusColor || '#92400E'
+                      }}
                     >
-                      {job.status.replace("_", " ")}
+                      {job.statusName || 'Unknown'}
                     </span>
                   </div>
                 </div>

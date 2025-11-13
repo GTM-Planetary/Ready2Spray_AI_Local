@@ -293,12 +293,15 @@
 - [x] Add CRUD procedures for job statuses in backend (getJobStatusesByOrgId, createJobStatus, updateJobStatus, deleteJobStatus)
 - [x] Add tRPC jobStatuses router with list/create/update/delete procedures
 - [x] Update getJobsByOrgId to join with job_statuses and return statusName, statusColor, statusCategory
-- [ ] Fix frontend TypeScript errors (Dashboard.tsx and Jobs.tsx use old status enum)
-- [ ] Create Status Management section in Settings page
-- [ ] Implement drag-and-drop status reordering
-- [ ] Add color picker for status visualization
-- [ ] Update Jobs page to use custom statuses dropdown
-- [ ] Implement status transition workflow (buttons to move between stages)
+- [x] Fix frontend TypeScript errors (Dashboard and Jobs pages now use statusName, statusColor, statusCategory)
+- [x] Add Status dropdown to job form with custom statuses
+- [x] Create Status Management section in Settings page
+- [x] Add color picker for status visualization
+- [x] Implement status CRUD in Settings (create, edit, delete)
+- [ ] Implement drag-and-drop status reordering (optional enhancement)
+- [x] Implement status transition workflow (buttons to move between stages)
+- [x] Add StatusTransitionButton component to job cards
+- [x] Smart status transitions (Pending→Active, Active→Completed)
 - [ ] Update Dashboard to dynamically group by custom statuses
 - [ ] Add status change history tracking (optional)
 - [ ] Test custom status system end-to-end
