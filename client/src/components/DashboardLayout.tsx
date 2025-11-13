@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, Briefcase, UserCheck, Package, MessageSquare, MapPin, Settings as SettingsIcon, Building2, Plane, CalendarDays, Wrench, BarChart3, CalendarCheck, Mail, Shield } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, Briefcase, UserCheck, Package, MessageSquare, MapPin, Settings as SettingsIcon, Building2, Plane, CalendarDays, Wrench, BarChart3, CalendarCheck, Mail } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -37,9 +37,9 @@ const menuItems = [
   { icon: Wrench, label: "Equipment", path: "/equipment" },
   { icon: BarChart3, label: "Equipment Analytics", path: "/equipment-dashboard" },
   { icon: Users, label: "Customers", path: "/customers" },
+  { icon: UserCheck, label: "Personnel", path: "/personnel" },
   { icon: MessageSquare, label: "AI Chat", path: "/chat" },
   { icon: MapPin, label: "Maps", path: "/maps" },
-  { icon: Shield, label: "User Management", path: "/user-management" },
   { icon: SettingsIcon, label: "Settings", path: "/settings" },
   { icon: Mail, label: "Email Test", path: "/email-test" },
 ];

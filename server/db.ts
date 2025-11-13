@@ -976,20 +976,3 @@ export async function deleteServicePlan(id: number) {
   
   await db.delete(servicePlans).where(eq(servicePlans.id, id));
 }
-
-// User Management Functions
-export async function getUsersByOrgId(orgId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  
-  const result = await db.select().from(users).where(eq(users.id, orgId));
-  return result;
-}
-
-export async function updateUserRole(userId: number, userRole: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  await db.update(users).set({ userRole }).where(eq(users.id, userId));
-  return { success: true };
-}
