@@ -202,9 +202,9 @@ export async function getJobsByOrgId(orgId: number) {
   const db = await getDb();
   if (!db) return [];
   
-  const { jobs, jobStatuses } = await import("../drizzle/schema");
+  const { jobs, jobStatuses, customers, personnel, sites } = await import("../drizzle/schema");
   
-  // Join jobs with job_statuses to get status name and color
+  // Join jobs with job_statuses, customers, personnel, and sites to get all display fields
   const result = await db
     .select({
       id: jobs.id,
@@ -212,6 +212,7 @@ export async function getJobsByOrgId(orgId: number) {
       customerId: jobs.customerId,
       assignedPersonnelId: jobs.assignedPersonnelId,
       equipmentId: jobs.equipmentId,
+      siteId: jobs.siteId,
       title: jobs.title,
       description: jobs.description,
       jobType: jobs.jobType,
@@ -226,6 +227,7 @@ export async function getJobsByOrgId(orgId: number) {
       actualEnd: jobs.actualEnd,
       notes: jobs.notes,
       state: jobs.state,
+      acres: jobs.acres,
       commodityCrop: jobs.commodityCrop,
       targetPest: jobs.targetPest,
       epaNumber: jobs.epaNumber,
@@ -248,9 +250,18 @@ export async function getJobsByOrgId(orgId: number) {
       statusName: jobStatuses.name,
       statusColor: jobStatuses.color,
       statusCategory: jobStatuses.category,
+      // Customer name from customers table
+      customerName: customers.name,
+      // Personnel name from personnel table
+      personnelName: personnel.name,
+      // Site commodity from sites table
+      commodity: sites.crop,
     })
     .from(jobs)
     .leftJoin(jobStatuses, eq(jobs.statusId, jobStatuses.id))
+    .leftJoin(customers, eq(jobs.customerId, customers.id))
+    .leftJoin(personnel, eq(jobs.assignedPersonnelId, personnel.id))
+    .leftJoin(sites, eq(jobs.siteId, sites.id))
     .where(eq(jobs.orgId, orgId));
   
   return result;

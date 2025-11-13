@@ -19,6 +19,7 @@ import Calendar from "@/pages/Calendar";
 import Equipment from "@/pages/Equipment";
 import EquipmentDashboard from "@/pages/EquipmentDashboard";
 import Sites from "./pages/Sites";
+import ServicePlans from "./pages/ServicePlans";
 
 function Router() {
   return (
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/equipment" component={Equipment} />
       <Route path="/equipment-dashboard" component={EquipmentDashboard} />
         <Route path="/sites" component={Sites} />
+      <Route path="/service-plans" component={ServicePlans} />
         <Route path="/jobs" component={Jobs} />
         <Route path="/customers" component={Customers} />
         <Route path="/personnel" component={Personnel} />

@@ -14,14 +14,14 @@ import { MaintenanceScheduler } from "@/components/MaintenanceScheduler";
 
 type EquipmentFormData = {
   name: string;
-  equipmentType: string;
+  equipmentType: "plane" | "helicopter" | "ground_rig" | "truck" | "backpack" | "hand_sprayer" | "ulv" | "other";
   tailNumber: string;
   licensePlate: string;
   serialNumber: string;
   tankCapacity: string;
   swathWidth: string;
   maxSpeed: string;
-  status: string;
+  status: "active" | "maintenance" | "inactive";
   lastMaintenanceDate: string;
   nextMaintenanceDate: string;
   maintenanceNotes: string;
@@ -220,7 +220,7 @@ export default function Equipment() {
                     <Label htmlFor="equipmentType">Type *</Label>
                     <Select
                       value={formData.equipmentType}
-                      onValueChange={(value) => setFormData({ ...formData, equipmentType: value })}
+                      onValueChange={(value) => setFormData({ ...formData, equipmentType: value as EquipmentFormData["equipmentType"] })}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -241,7 +241,7 @@ export default function Equipment() {
                     <Label htmlFor="status">Status</Label>
                     <Select
                       value={formData.status}
-                      onValueChange={(value) => setFormData({ ...formData, status: value })}
+                      onValueChange={(value) => setFormData({ ...formData, status: value as EquipmentFormData["status"] })}
                     >
                       <SelectTrigger>
                         <SelectValue />

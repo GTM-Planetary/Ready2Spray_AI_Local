@@ -119,7 +119,7 @@ export default function FlightBoard() {
                       </CardTitle>
                       <CardDescription className="flex items-center gap-1 mt-1">
                         <MapPin className="h-3 w-3" />
-                        {job.location || "No location specified"}
+                        {job.locationAddress || "No location specified"}
                       </CardDescription>
                     </div>
                     <Badge 

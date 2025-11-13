@@ -1,8 +1,10 @@
 import { trpc } from "@/lib/trpc";
-import { Calendar as BigCalendar, dateFnsLocalizer, Views } from "react-big-calendar";
+import { Calendar as BigCalendar, dateFnsLocalizer, Views, View } from "react-big-calendar";
+import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { useState, useCallback, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -24,10 +26,13 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
+// Enable drag and drop
+const DnDCalendar = withDragAndDrop(BigCalendar);
+
 export default function Calendar() {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [view, setView] = useState(Views.WEEK);
+  const [view, setView] = useState<View>(Views.WEEK);
   const [date, setDate] = useState(new Date());
 
   const { data: jobs, isLoading } = trpc.jobs.list.useQuery();
@@ -139,11 +144,11 @@ export default function Calendar() {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-4" style={{ height: "calc(100vh - 200px)" }}>
-        <BigCalendar
+        <DnDCalendar
           localizer={localizer}
           events={events}
-          startAccessor="start"
-          endAccessor="end"
+          startAccessor={(event: any) => event.start}
+          endAccessor={(event: any) => event.end}
           view={view}
           onView={setView}
           date={date}

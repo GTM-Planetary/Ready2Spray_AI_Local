@@ -702,6 +702,78 @@ Be concise and practical. When presenting data from tools, format it clearly.`,
         return await getAgrianProductDetail(input.url, input.state, input.commodity);
       }),
   }),
+
+  // Service Plans router
+  servicePlans: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      const { getOrCreateUserOrganization, getServicePlansByOrgId } = await import("./db");
+      const org = await getOrCreateUserOrganization(ctx.user.id);
+      return await getServicePlansByOrgId(org.id);
+    }),
+    create: protectedProcedure
+      .input(z.object({
+        customerId: z.number().min(1, "Customer is required"),
+        siteId: z.number().optional(),
+        planName: z.string().min(1, "Plan name is required"),
+        planType: z.enum(["monthly", "quarterly", "bi_monthly", "annual", "one_off"]),
+        startDate: z.string().min(1, "Start date is required"),
+        endDate: z.string().optional(),
+        nextServiceDate: z.string().optional(),
+        defaultZones: z.string().optional(), // JSON string
+        defaultProducts: z.string().optional(), // JSON string
+        defaultTargetPests: z.string().optional(), // JSON string
+        pricePerService: z.string().optional(),
+        currency: z.string().default("USD"),
+        status: z.enum(["active", "paused", "cancelled", "completed"]).default("active"),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { getOrCreateUserOrganization, createServicePlan } = await import("./db");
+        const org = await getOrCreateUserOrganization(ctx.user.id);
+        return await createServicePlan({
+          orgId: org.id,
+          ...input,
+          defaultZones: input.defaultZones ? JSON.parse(input.defaultZones) : null,
+          defaultProducts: input.defaultProducts ? JSON.parse(input.defaultProducts) : null,
+          defaultTargetPests: input.defaultTargetPests ? JSON.parse(input.defaultTargetPests) : null,
+        });
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        customerId: z.number().optional(),
+        siteId: z.number().optional(),
+        planName: z.string().min(1, "Plan name is required").optional(),
+        planType: z.enum(["monthly", "quarterly", "bi_monthly", "annual", "one_off"]).optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        nextServiceDate: z.string().optional(),
+        defaultZones: z.string().optional(), // JSON string
+        defaultProducts: z.string().optional(), // JSON string
+        defaultTargetPests: z.string().optional(), // JSON string
+        pricePerService: z.string().optional(),
+        currency: z.string().optional(),
+        status: z.enum(["active", "paused", "cancelled", "completed"]).optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { updateServicePlan } = await import("./db");
+        const { id, ...rest } = input;
+        return await updateServicePlan(id, {
+          ...rest,
+          defaultZones: rest.defaultZones ? JSON.parse(rest.defaultZones) : undefined,
+          defaultProducts: rest.defaultProducts ? JSON.parse(rest.defaultProducts) : undefined,
+          defaultTargetPests: rest.defaultTargetPests ? JSON.parse(rest.defaultTargetPests) : undefined,
+        });
+      }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const { deleteServicePlan } = await import("./db");
+        await deleteServicePlan(input.id);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

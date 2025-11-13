@@ -377,3 +377,49 @@ export const completeMaintenanceTaskSchema = z.object({
   actualCost: z.string().optional(),
   notes: z.string().optional(),
 });
+
+// Service Plan schemas
+export const createServicePlanSchema = z.object({
+  customerId: z.number().min(1, "Customer is required"),
+  siteId: z.number().optional(),
+  planName: z.string().min(1, "Plan name is required"),
+  planType: z.enum(["monthly", "quarterly", "bi_monthly", "annual", "one_off"]),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().optional(),
+  nextServiceDate: z.string().optional(),
+  defaultZones: z.array(z.number()).optional(),
+  defaultProducts: z.array(z.object({
+    productId: z.number(),
+    rate: z.string(),
+  })).optional(),
+  defaultTargetPests: z.array(z.string()).optional(),
+  pricePerService: z.string().optional(),
+  currency: z.string().default("USD"),
+  status: z.enum(["active", "paused", "cancelled", "completed"]).default("active"),
+  notes: z.string().optional(),
+});
+
+export const updateServicePlanSchema = z.object({
+  id: z.number(),
+  customerId: z.number().optional(),
+  siteId: z.number().optional(),
+  planName: z.string().min(1, "Plan name is required").optional(),
+  planType: z.enum(["monthly", "quarterly", "bi_monthly", "annual", "one_off"]).optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  nextServiceDate: z.string().optional(),
+  defaultZones: z.array(z.number()).optional(),
+  defaultProducts: z.array(z.object({
+    productId: z.number(),
+    rate: z.string(),
+  })).optional(),
+  defaultTargetPests: z.array(z.string()).optional(),
+  pricePerService: z.string().optional(),
+  currency: z.string().optional(),
+  status: z.enum(["active", "paused", "cancelled", "completed"]).optional(),
+  notes: z.string().optional(),
+});
+
+export const deleteServicePlanSchema = z.object({
+  id: z.number(),
+});
