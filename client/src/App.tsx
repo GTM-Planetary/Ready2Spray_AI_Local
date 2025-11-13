@@ -13,7 +13,9 @@ import Chat from "./pages/Chat";
 import Maps from "./pages/Maps";
 import ProductLookup from "./pages/ProductLookup";
 import Settings from "./pages/Settings";
-import JobDetail from "./pages/JobDetail";
+import JobDetail from "@/pages/JobDetail";
+import FlightBoard from "@/pages/FlightBoard";
+import Calendar from "@/pages/Calendar";
 import Sites from "./pages/Sites";
 
 function Router() {
@@ -22,6 +24,8 @@ function Router() {
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/jobs/:id" component={JobDetail} />
+      <Route path="/flight-board" component={FlightBoard} />
+      <Route path="/calendar" component={Calendar} />
         <Route path="/sites" component={Sites} />
         <Route path="/jobs" component={Jobs} />
         <Route path="/customers" component={Customers} />

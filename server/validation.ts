@@ -266,3 +266,36 @@ export const updateSiteSchema = z.object({
 export const deleteSiteSchema = z.object({
   id: z.number(),
 });
+
+
+// Integration schemas
+export const createIntegrationConnectionSchema = z.object({
+  integrationType: z.enum(['zoho_crm', 'fieldpulse']),
+  zohoClientId: z.string().optional(),
+  zohoClientSecret: z.string().optional(),
+  fieldpulseApiKey: z.string().optional(),
+  syncCustomers: z.boolean().optional(),
+  syncJobs: z.boolean().optional(),
+  syncPersonnel: z.boolean().optional(),
+  syncIntervalMinutes: z.number().optional(),
+});
+
+export const updateIntegrationConnectionSchema = z.object({
+  id: z.number(),
+  isEnabled: z.boolean().optional(),
+  zohoAccessToken: z.string().optional(),
+  zohoRefreshToken: z.string().optional(),
+  fieldpulseApiKey: z.string().optional(),
+  syncCustomers: z.boolean().optional(),
+  syncJobs: z.boolean().optional(),
+  syncPersonnel: z.boolean().optional(),
+  syncIntervalMinutes: z.number().optional(),
+});
+
+export const deleteIntegrationConnectionSchema = z.object({
+  id: z.number(),
+});
+
+export const testFieldPulseSchema = z.object({
+  apiKey: z.string().min(1, "API key is required"),
+});

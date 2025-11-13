@@ -386,6 +386,9 @@ export default function Settings() {
         </CardContent>
       </Card>
 
+      {/* Integrations Section */}
+      <IntegrationsSection />
+
       {/* Job Statuses Section */}
       <JobStatusesSection />
     </div>
@@ -457,6 +460,267 @@ function SortableStatusItem({ status, onEdit, onDelete }: any) {
         </Button>
       </div>
     </div>
+  );
+}
+
+// Integrations Management Component
+function IntegrationsSection() {
+  const [isAddingZoho, setIsAddingZoho] = useState(false);
+  const [isAddingFieldPulse, setIsAddingFieldPulse] = useState(false);
+  const [zohoForm, setZohoForm] = useState({ clientId: "", clientSecret: "" });
+  const [fieldPulseForm, setFieldPulseForm] = useState({ apiKey: "" });
+
+  const { data: integrations, isLoading } = trpc.integrations.list.useQuery();
+  const utils = trpc.useUtils();
+
+  const createMutation = trpc.integrations.create.useMutation({
+    onSuccess: () => {
+      utils.integrations.list.invalidate();
+      toast.success("Integration connected successfully!");
+      setIsAddingZoho(false);
+      setIsAddingFieldPulse(false);
+      setZohoForm({ clientId: "", clientSecret: "" });
+      setFieldPulseForm({ apiKey: "" });
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to connect integration: ${error.message}`);
+    },
+  });
+
+  const updateMutation = trpc.integrations.update.useMutation({
+    onSuccess: () => {
+      utils.integrations.list.invalidate();
+      toast.success("Integration settings updated!");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to update integration: ${error.message}`);
+    },
+  });
+
+  const deleteMutation = trpc.integrations.delete.useMutation({
+    onSuccess: () => {
+      utils.integrations.list.invalidate();
+      toast.success("Integration disconnected!");
+    },
+    onError: (error: any) => {
+      toast.error(`Failed to disconnect integration: ${error.message}`);
+    },
+  });
+
+  const zohoConnection = integrations?.find(i => i.integrationType === 'zoho_crm');
+  const fieldPulseConnection = integrations?.find(i => i.integrationType === 'fieldpulse');
+
+  const handleZohoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createMutation.mutate({
+      integrationType: 'zoho_crm',
+      zohoClientId: zohoForm.clientId,
+      zohoClientSecret: zohoForm.clientSecret,
+      syncCustomers: true,
+      syncJobs: true,
+      syncIntervalMinutes: 15,
+    });
+  };
+
+  const handleFieldPulseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createMutation.mutate({
+      integrationType: 'fieldpulse',
+      fieldpulseApiKey: fieldPulseForm.apiKey,
+      syncCustomers: true,
+      syncJobs: true,
+      syncIntervalMinutes: 15,
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Integrations</CardTitle>
+        <CardDescription>
+          Connect Zoho CRM and FieldPulse to sync customers and jobs
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Zoho CRM Integration */}
+        <div className="border rounded-lg p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">Zoho CRM</h3>
+              <p className="text-sm text-muted-foreground">
+                {zohoConnection ? 'Connected' : 'Not connected'}
+              </p>
+            </div>
+            {zohoConnection ? (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (confirm('Disconnect Zoho CRM?')) {
+                      deleteMutation.mutate({ id: zohoConnection.id });
+                    }
+                  }}
+                >
+                  Disconnect
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setIsAddingZoho(!isAddingZoho)}
+                variant={isAddingZoho ? "outline" : "default"}
+                size="sm"
+              >
+                {isAddingZoho ? "Cancel" : "Connect"}
+              </Button>
+            )}
+          </div>
+
+          {isAddingZoho && !zohoConnection && (
+            <form onSubmit={handleZohoSubmit} className="space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="zohoClientId">Client ID</Label>
+                <Input
+                  id="zohoClientId"
+                  value={zohoForm.clientId}
+                  onChange={(e) => setZohoForm({ ...zohoForm, clientId: e.target.value })}
+                  placeholder="Enter Zoho Client ID"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="zohoClientSecret">Client Secret</Label>
+                <Input
+                  id="zohoClientSecret"
+                  type="password"
+                  value={zohoForm.clientSecret}
+                  onChange={(e) => setZohoForm({ ...zohoForm, clientSecret: e.target.value })}
+                  placeholder="Enter Zoho Client Secret"
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsAddingZoho(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={createMutation.isPending}>
+                  {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Connect Zoho CRM
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {zohoConnection && (
+            <div className="space-y-2 text-sm">
+              <p>Last sync: {zohoConnection.lastSyncAt ? new Date(zohoConnection.lastSyncAt).toLocaleString() : 'Never'}</p>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={zohoConnection.syncCustomers}
+                    onChange={(e) => updateMutation.mutate({ id: zohoConnection.id, syncCustomers: e.target.checked })}
+                  />
+                  Sync Customers
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={zohoConnection.syncJobs}
+                    onChange={(e) => updateMutation.mutate({ id: zohoConnection.id, syncJobs: e.target.checked })}
+                  />
+                  Sync Jobs
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* FieldPulse Integration */}
+        <div className="border rounded-lg p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">FieldPulse</h3>
+              <p className="text-sm text-muted-foreground">
+                {fieldPulseConnection ? 'Connected' : 'Not connected'}
+              </p>
+            </div>
+            {fieldPulseConnection ? (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (confirm('Disconnect FieldPulse?')) {
+                      deleteMutation.mutate({ id: fieldPulseConnection.id });
+                    }
+                  }}
+                >
+                  Disconnect
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setIsAddingFieldPulse(!isAddingFieldPulse)}
+                variant={isAddingFieldPulse ? "outline" : "default"}
+                size="sm"
+              >
+                {isAddingFieldPulse ? "Cancel" : "Connect"}
+              </Button>
+            )}
+          </div>
+
+          {isAddingFieldPulse && !fieldPulseConnection && (
+            <form onSubmit={handleFieldPulseSubmit} className="space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="fieldpulseApiKey">API Key</Label>
+                <Input
+                  id="fieldpulseApiKey"
+                  type="password"
+                  value={fieldPulseForm.apiKey}
+                  onChange={(e) => setFieldPulseForm({ apiKey: e.target.value })}
+                  placeholder="Enter FieldPulse API Key"
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsAddingFieldPulse(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={createMutation.isPending}>
+                  {createMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Connect FieldPulse
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {fieldPulseConnection && (
+            <div className="space-y-2 text-sm">
+              <p>Last sync: {fieldPulseConnection.lastSyncAt ? new Date(fieldPulseConnection.lastSyncAt).toLocaleString() : 'Never'}</p>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={fieldPulseConnection.syncCustomers}
+                    onChange={(e) => updateMutation.mutate({ id: fieldPulseConnection.id, syncCustomers: e.target.checked })}
+                  />
+                  Sync Customers
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={fieldPulseConnection.syncJobs}
+                    onChange={(e) => updateMutation.mutate({ id: fieldPulseConnection.id, syncJobs: e.target.checked })}
+                  />
+                  Sync Jobs
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

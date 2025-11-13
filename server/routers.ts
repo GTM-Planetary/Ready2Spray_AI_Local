@@ -521,6 +521,61 @@ Be concise and practical. When presenting data from tools, format it clearly.`,
       }),
   }),
 
+  integrations: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      const { getOrCreateUserOrganization, getIntegrationConnections } = await import("./db");
+      const org = await getOrCreateUserOrganization(ctx.user.id);
+      return await getIntegrationConnections(org.id);
+    }),
+    create: protectedProcedure
+      .input(z.object({
+        integrationType: z.enum(['zoho_crm', 'fieldpulse']),
+        zohoClientId: z.string().optional(),
+        zohoClientSecret: z.string().optional(),
+        fieldpulseApiKey: z.string().optional(),
+        syncCustomers: z.boolean().optional(),
+        syncJobs: z.boolean().optional(),
+        syncPersonnel: z.boolean().optional(),
+        syncIntervalMinutes: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { getOrCreateUserOrganization, createIntegrationConnection } = await import("./db");
+        const org = await getOrCreateUserOrganization(ctx.user.id);
+        return await createIntegrationConnection({
+          organizationId: org.id,
+          ...input
+        });
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        isEnabled: z.boolean().optional(),
+        fieldpulseApiKey: z.string().optional(),
+        syncCustomers: z.boolean().optional(),
+        syncJobs: z.boolean().optional(),
+        syncPersonnel: z.boolean().optional(),
+        syncIntervalMinutes: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { updateIntegrationConnection } = await import("./db");
+        const { id, ...data } = input;
+        return await updateIntegrationConnection(id, data);
+      }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const { deleteIntegrationConnection } = await import("./db");
+        await deleteIntegrationConnection(input.id);
+        return { success: true };
+      }),
+    logs: protectedProcedure
+      .input(z.object({ connectionId: z.number(), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        const { getSyncLogs } = await import("./db");
+        return await getSyncLogs(input.connectionId, input.limit);
+      }),
+  }),
+
   agrian: router({
     searchProducts: protectedProcedure
       .input((raw: any) => raw)
