@@ -1,0 +1,78 @@
+{
+  "query": "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'organizations' ORDER BY ordinal_position;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3LAnvSXMR8umuBe.cb88ed38e99c --database 6adCeCxV2Yg38ygq7gdRsu --execute SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'organizations' ORDER BY ordinal_position;",
+  "rows": [
+    {
+      "column_name": "id",
+      "data_type": "int"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text"
+    },
+    {
+      "column_name": "owner_id",
+      "data_type": "int"
+    },
+    {
+      "column_name": "stripe_customer_id",
+      "data_type": "varchar"
+    },
+    {
+      "column_name": "subscription_id",
+      "data_type": "varchar"
+    },
+    {
+      "column_name": "subscription_plan",
+      "data_type": "enum"
+    },
+    {
+      "column_name": "subscription_status",
+      "data_type": "varchar"
+    },
+    {
+      "column_name": "created_at",
+      "data_type": "timestamp"
+    },
+    {
+      "column_name": "updated_at",
+      "data_type": "timestamp"
+    },
+    {
+      "column_name": "address",
+      "data_type": "text"
+    },
+    {
+      "column_name": "city",
+      "data_type": "varchar"
+    },
+    {
+      "column_name": "state",
+      "data_type": "varchar"
+    },
+    {
+      "column_name": "zip_code",
+      "data_type": "varchar"
+    },
+    {
+      "column_name": "phone",
+      "data_type": "varchar"
+    },
+    {
+      "column_name": "email",
+      "data_type": "varchar"
+    },
+    {
+      "column_name": "website",
+      "data_type": "varchar"
+    },
+    {
+      "column_name": "notes",
+      "data_type": "text"
+    }
+  ],
+  "messages": [],
+  "stdout": "column_name\tdata_type\nid\tint\nname\ttext\nowner_id\tint\nstripe_customer_id\tvarchar\nsubscription_id\tvarchar\nsubscription_plan\tenum\nsubscription_status\tvarchar\ncreated_at\ttimestamp\nupdated_at\ttimestamp\naddress\ttext\ncity\tvarchar\nstate\tvarchar\nzip_code\tvarchar\nphone\tvarchar\nemail\tvarchar\nwebsite\tvarchar\nnotes\ttext\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}

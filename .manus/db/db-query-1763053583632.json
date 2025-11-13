@@ -1,0 +1,29 @@
+{
+  "query": "SELECT * FROM organizations WHERE owner_id = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3LAnvSXMR8umuBe.cb88ed38e99c --database 6adCeCxV2Yg38ygq7gdRsu --execute SELECT * FROM organizations WHERE owner_id = 1;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Organization 1",
+      "owner_id": "1",
+      "stripe_customer_id": "NULL",
+      "subscription_id": "NULL",
+      "subscription_plan": "FREE",
+      "subscription_status": "active",
+      "created_at": "2025-11-12 20:06:44",
+      "updated_at": "2025-11-12 20:06:44",
+      "address": "NULL",
+      "city": "NULL",
+      "state": "NULL",
+      "zip_code": "NULL",
+      "phone": "NULL",
+      "email": "NULL",
+      "website": "NULL",
+      "notes": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\towner_id\tstripe_customer_id\tsubscription_id\tsubscription_plan\tsubscription_status\tcreated_at\tupdated_at\taddress\tcity\tstate\tzip_code\tphone\temail\twebsite\tnotes\n1\tOrganization 1\t1\tNULL\tNULL\tFREE\tactive\t2025-11-12 20:06:44\t2025-11-12 20:06:44\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 74
+}
