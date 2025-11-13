@@ -337,3 +337,43 @@ export const updateEquipmentSchema = z.object({
 export const deleteEquipmentSchema = z.object({
   id: z.number(),
 });
+
+// ============================================================================
+// Maintenance Tasks Validation
+// ============================================================================
+
+export const createMaintenanceTaskSchema = z.object({
+  equipmentId: z.number().int().positive(),
+  taskName: z.string().min(1).max(255),
+  description: z.string().optional(),
+  taskType: z.enum(["inspection", "oil_change", "filter_replacement", "tire_rotation", "annual_certification", "engine_overhaul", "custom"]),
+  frequencyType: z.enum(["hours", "days", "months", "one_time"]),
+  frequencyValue: z.number().int().positive(),
+  lastCompletedDate: z.string().optional(),
+  nextDueDate: z.string().optional(),
+  isRecurring: z.boolean().default(true),
+  estimatedCost: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const updateMaintenanceTaskSchema = z.object({
+  id: z.number().int().positive(),
+  taskName: z.string().min(1).max(255).optional(),
+  description: z.string().optional(),
+  taskType: z.enum(["inspection", "oil_change", "filter_replacement", "tire_rotation", "annual_certification", "engine_overhaul", "custom"]).optional(),
+  frequencyType: z.enum(["hours", "days", "months", "one_time"]).optional(),
+  frequencyValue: z.number().int().positive().optional(),
+  lastCompletedDate: z.string().optional(),
+  nextDueDate: z.string().optional(),
+  isRecurring: z.boolean().optional(),
+  estimatedCost: z.string().optional(),
+  actualCost: z.string().optional(),
+  status: z.enum(["pending", "in_progress", "completed", "overdue"]).optional(),
+  notes: z.string().optional(),
+});
+
+export const completeMaintenanceTaskSchema = z.object({
+  id: z.number().int().positive(),
+  actualCost: z.string().optional(),
+  notes: z.string().optional(),
+});

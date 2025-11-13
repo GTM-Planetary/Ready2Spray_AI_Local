@@ -549,3 +549,37 @@
 - [ ] Test maintenance tracking
 - [ ] Test job assignment integration
 - [ ] Save checkpoint
+
+
+## Phase 9: Maintenance Scheduler, Service Plans, and Export Features (IN PROGRESS)
+
+### Maintenance Scheduler UI
+- [ ] Add maintenance_tasks schema to drizzle/schema.ts
+- [ ] Create maintenance database procedures (getTasks, createTask, updateTask, deleteTask, completeTask)
+- [ ] Add maintenance validation schemas
+- [ ] Create maintenance tRPC router
+- [ ] Build MaintenanceScheduler.tsx component
+- [ ] Add recurring task creation form
+- [ ] Display maintenance history timeline
+- [ ] Add maintenance due alerts
+- [ ] Integrate with Equipment page
+
+### Service Plans System
+- [ ] Create service plans database procedures
+- [ ] Add service plans validation schemas
+- [ ] Create service plans tRPC router
+- [ ] Build ServicePlans.tsx page
+- [ ] Add service plan creation form (recurring schedules)
+- [ ] Implement automated job generation from service plans
+- [ ] Add customer zone assignment
+- [ ] Create service plan dashboard
+- [ ] Add route to sidebar navigation
+
+### Application Records Export
+- [ ] Install PDF generation library (jsPDF or pdfmake)
+- [ ] Create PDF export template for application records
+- [ ] Add CSV export functionality
+- [ ] Create export button on JobDetail page
+- [ ] Include all EPA compliance fields in export
+- [ ] Add company branding to PDF
+- [ ] Test PDF/CSV generation with real data

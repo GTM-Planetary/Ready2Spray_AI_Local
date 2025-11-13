@@ -586,3 +586,30 @@ export const integrationEntityMappings = pgTable("integration_entity_mappings", 
 
 export type IntegrationEntityMapping = typeof integrationEntityMappings.$inferSelect;
 export type InsertIntegrationEntityMapping = typeof integrationEntityMappings.$inferInsert;
+
+// Maintenance task enums
+export const maintenanceTaskTypeEnum = pgEnum("maintenance_task_type", ["inspection", "oil_change", "filter_replacement", "tire_rotation", "annual_certification", "engine_overhaul", "custom"]);
+export const maintenanceFrequencyTypeEnum = pgEnum("maintenance_frequency_type", ["hours", "days", "months", "one_time"]);
+export const maintenanceStatusEnum = pgEnum("maintenance_status", ["pending", "in_progress", "completed", "overdue"]);
+
+export const maintenanceTasks = pgTable("maintenance_tasks", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  equipmentId: integer("equipment_id").notNull().references(() => equipment.id, { onDelete: "cascade" }),
+  taskName: varchar("task_name", { length: 255 }).notNull(),
+  description: text("description"),
+  taskType: maintenanceTaskTypeEnum("task_type").notNull(),
+  frequencyType: maintenanceFrequencyTypeEnum("frequency_type").notNull(),
+  frequencyValue: integer("frequency_value").notNull(),
+  lastCompletedDate: timestamp("last_completed_date"),
+  nextDueDate: timestamp("next_due_date"),
+  isRecurring: boolean("is_recurring").default(true),
+  estimatedCost: numeric("estimated_cost", { precision: 10, scale: 2 }),
+  actualCost: numeric("actual_cost", { precision: 10, scale: 2 }),
+  status: maintenanceStatusEnum("status").default("pending").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type MaintenanceTask = typeof maintenanceTasks.$inferSelect;
+export type InsertMaintenanceTask = typeof maintenanceTasks.$inferInsert;

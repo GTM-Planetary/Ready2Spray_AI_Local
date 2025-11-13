@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { InsertUser, users, equipment, InsertEquipment } from "../drizzle/schema";
+import { InsertUser, users, equipment, InsertEquipment, maintenanceTasks, InsertMaintenanceTask } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -781,4 +781,129 @@ export async function deleteEquipment(id: number) {
   if (!db) throw new Error("Database not available");
   
   await db.delete(equipment).where(eq(equipment.id, id));
+}
+
+
+// ============================================================================
+// Maintenance Tasks
+// ============================================================================
+
+export async function getMaintenanceTasksByEquipmentId(equipmentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select()
+    .from(maintenanceTasks)
+    .where(eq(maintenanceTasks.equipmentId, equipmentId))
+    .orderBy(maintenanceTasks.nextDueDate);
+  
+  return result;
+}
+
+export async function getAllMaintenanceTasks(orgId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get all equipment for this org first
+  const orgEquipment = await getEquipmentByOrgId(orgId);
+  const equipmentIds = orgEquipment.map(e => e.id);
+  
+  if (equipmentIds.length === 0) return [];
+  
+  const result = await db
+    .select()
+    .from(maintenanceTasks)
+    .where(sql`${maintenanceTasks.equipmentId} IN (${sql.join(equipmentIds.map(id => sql`${id}`), sql`, `)})`)
+    .orderBy(maintenanceTasks.nextDueDate);
+  
+  return result;
+}
+
+export async function getMaintenanceTaskById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db
+    .select()
+    .from(maintenanceTasks)
+    .where(eq(maintenanceTasks.id, id))
+    .limit(1);
+  
+  return result[0];
+}
+
+export async function createMaintenanceTask(task: InsertMaintenanceTask) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(maintenanceTasks).values(task).returning();
+  return result[0];
+}
+
+export async function updateMaintenanceTask(id: number, updates: Partial<InsertMaintenanceTask>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .update(maintenanceTasks)
+    .set({ ...updates, updatedAt: new Date() })
+    .where(eq(maintenanceTasks.id, id))
+    .returning();
+  
+  return result[0];
+}
+
+export async function completeMaintenanceTask(id: number, actualCost?: string, notes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const task = await getMaintenanceTaskById(id);
+  if (!task) throw new Error("Task not found");
+  
+  const now = new Date();
+  let nextDueDate: Date | null = null;
+  
+  // Calculate next due date if recurring
+  if (task.isRecurring && task.frequencyType && task.frequencyValue) {
+    switch (task.frequencyType) {
+      case "hours":
+        // For hours-based, we'd need equipment hours tracking
+        // For now, skip automatic calculation
+        break;
+      case "days":
+        nextDueDate = new Date(now);
+        nextDueDate.setDate(nextDueDate.getDate() + task.frequencyValue);
+        break;
+      case "months":
+        nextDueDate = new Date(now);
+        nextDueDate.setMonth(nextDueDate.getMonth() + task.frequencyValue);
+        break;
+    }
+  }
+  
+  const updates: Partial<InsertMaintenanceTask> = {
+    status: "completed",
+    lastCompletedDate: now,
+    nextDueDate: nextDueDate,
+    updatedAt: now,
+  };
+  
+  if (actualCost) updates.actualCost = actualCost;
+  if (notes) updates.notes = notes;
+  
+  const result = await db
+    .update(maintenanceTasks)
+    .set(updates)
+    .where(eq(maintenanceTasks.id, id))
+    .returning();
+  
+  return result[0];
+}
+
+export async function deleteMaintenanceTask(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(maintenanceTasks).where(eq(maintenanceTasks.id, id));
 }
