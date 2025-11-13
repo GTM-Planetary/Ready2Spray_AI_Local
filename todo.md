@@ -553,12 +553,12 @@
 
 ## Phase 9: Maintenance Scheduler, Service Plans, and Export Features (IN PROGRESS)
 
-### Maintenance Scheduler UI
-- [ ] Add maintenance_tasks schema to drizzle/schema.ts
-- [ ] Create maintenance database procedures (getTasks, createTask, updateTask, deleteTask, completeTask)
-- [ ] Add maintenance validation schemas
-- [ ] Create maintenance tRPC router
-- [ ] Build MaintenanceScheduler.tsx component
+### Maintenance Scheduler UI (IN PROGRESS)
+- [x] Add maintenance_tasks schema to drizzle/schema.ts
+- [x] Create maintenance database procedures (getTasks, createTask, updateTask, deleteTask, completeTask)
+- [x] Add maintenance validation schemas
+- [x] Create maintenance tRPC router (listByEquipment, listAll, create, update, complete, delete)
+- [ ] Build MaintenanceScheduler component for Equipment page
 - [ ] Add recurring task creation form
 - [ ] Display maintenance history timeline
 - [ ] Add maintenance due alerts

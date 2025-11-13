@@ -521,6 +521,83 @@ Be concise and practical. When presenting data from tools, format it clearly.`,
       }),
   }),
 
+  maintenance: router({
+    listByEquipment: protectedProcedure
+      .input(z.object({ equipmentId: z.number() }))
+      .query(async ({ input }) => {
+        const { getMaintenanceTasksByEquipmentId } = await import("./db");
+        return await getMaintenanceTasksByEquipmentId(input.equipmentId);
+      }),
+    listAll: protectedProcedure.query(async ({ ctx }) => {
+      const { getOrCreateUserOrganization, getAllMaintenanceTasks } = await import("./db");
+      const org = await getOrCreateUserOrganization(ctx.user.id);
+      return await getAllMaintenanceTasks(org.id);
+    }),
+    create: protectedProcedure
+      .input(z.object({
+        equipmentId: z.number(),
+        taskName: z.string(),
+        description: z.string().optional(),
+        taskType: z.enum(["inspection", "oil_change", "filter_replacement", "tire_rotation", "annual_certification", "engine_overhaul", "custom"]),
+        frequencyType: z.enum(["hours", "days", "months", "one_time"]),
+        frequencyValue: z.number(),
+        nextDueDate: z.string().optional(),
+        isRecurring: z.boolean().default(true),
+        estimatedCost: z.string().optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { createMaintenanceTask } = await import("./db");
+        const { nextDueDate, ...data } = input;
+        const taskData = {
+          ...data,
+          ...(nextDueDate ? { nextDueDate: new Date(nextDueDate) } : {}),
+        };
+        return await createMaintenanceTask(taskData);
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        taskName: z.string().optional(),
+        description: z.string().optional(),
+        taskType: z.enum(["inspection", "oil_change", "filter_replacement", "tire_rotation", "annual_certification", "engine_overhaul", "custom"]).optional(),
+        frequencyType: z.enum(["hours", "days", "months", "one_time"]).optional(),
+        frequencyValue: z.number().optional(),
+        nextDueDate: z.string().optional(),
+        isRecurring: z.boolean().optional(),
+        estimatedCost: z.string().optional(),
+        actualCost: z.string().optional(),
+        status: z.enum(["pending", "in_progress", "completed", "overdue"]).optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { updateMaintenanceTask } = await import("./db");
+        const { id, nextDueDate, ...data } = input;
+        const updates = {
+          ...data,
+          ...(nextDueDate ? { nextDueDate: new Date(nextDueDate) } : {}),
+        };
+        return await updateMaintenanceTask(id, updates);
+      }),
+    complete: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        actualCost: z.string().optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { completeMaintenanceTask } = await import("./db");
+        return await completeMaintenanceTask(input.id, input.actualCost, input.notes);
+      }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const { deleteMaintenanceTask } = await import("./db");
+        await deleteMaintenanceTask(input.id);
+        return { success: true };
+      }),
+  }),
+
   sites: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       const { getOrCreateUserOrganization, getSitesByOrgId } = await import("./db");
