@@ -200,3 +200,22 @@
 - [x] Update job form to populate ALL EPA fields from widget selection
 - [x] Test complete workflow: open widget → search → select → auto-populate job form
 - [x] Verify all EPA fields are correctly populated (EPA #, PPE, rates, intervals, etc.)
+
+## Supabase Migration (Priority)
+- [x] Update DATABASE_URL environment variable to point to Supabase
+- [x] Update drizzle config to use Supabase PostgreSQL
+- [x] Convert schema from MySQL to PostgreSQL
+- [x] Create all tables in Supabase
+- [x] Test database connection
+- [x] Verify authentication works with Supabase
+- [ ] Create checkpoint after successful migration
+
+## EPA Product Database (ON HOLD - User will provide data)
+- [ ] Design epaProducts table (199k EPA products - base data)
+- [ ] Design productDetails table (AI-extracted compliance data)
+- [ ] Design userProducts table (user favorites with custom pricing)
+- [ ] Create EPA product tables in Supabase
+- [ ] User imports EPA data
+- [ ] Implement AI PDF label extraction service
+- [ ] Create tRPC procedures for EPA product search
+- [ ] Update ProductLookup page to search Supabase EPA database
