@@ -17,6 +17,7 @@ import JobDetail from "@/pages/JobDetail";
 import FlightBoard from "@/pages/FlightBoard";
 import Calendar from "@/pages/Calendar";
 import Equipment from "@/pages/Equipment";
+import EquipmentDashboard from "@/pages/EquipmentDashboard";
 import Sites from "./pages/Sites";
 
 function Router() {
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/flight-board" component={FlightBoard} />
       <Route path="/calendar" component={Calendar} />
       <Route path="/equipment" component={Equipment} />
+      <Route path="/equipment-dashboard" component={EquipmentDashboard} />
         <Route path="/sites" component={Sites} />
         <Route path="/jobs" component={Jobs} />
         <Route path="/customers" component={Customers} />

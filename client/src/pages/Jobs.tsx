@@ -59,6 +59,7 @@ export default function Jobs() {
     locationAddress: "",
     customerId: "",
     assignedPersonnelId: "",
+    equipmentId: "",
     scheduledStart: "",
     scheduledEnd: "",
     // Agricultural details
@@ -85,6 +86,7 @@ export default function Jobs() {
   const { data: jobs, isLoading } = trpc.jobs.list.useQuery();
   const { data: customers } = trpc.customers.list.useQuery();
   const { data: personnel } = trpc.personnel.list.useQuery();
+  const { data: equipment } = trpc.equipment.list.useQuery();
   const { data: jobStatuses } = trpc.jobStatuses.list.useQuery();
   const utils = trpc.useUtils();
   
@@ -441,6 +443,26 @@ export default function Jobs() {
                       {personnel?.map((person) => (
                         <SelectItem key={person.id} value={person.id.toString()}>
                           {person.name} - {person.role}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="equipment">Assigned Equipment</Label>
+                  <Select
+                    value={formData.equipmentId}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, equipmentId: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select equipment (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {equipment?.filter(e => e.status === 'active').map((equip) => (
+                        <SelectItem key={equip.id} value={equip.id.toString()}>
+                          {equip.name} ({equip.equipmentType.replace('_', ' ')})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -805,6 +827,12 @@ export default function Jobs() {
                   <p className="text-sm text-muted-foreground flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     {job.locationAddress}
+                  </p>
+                )}
+                {job.equipmentId && equipment && (
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <span className="font-medium">Equipment:</span>
+                    {equipment.find(e => e.id === job.equipmentId)?.name || 'Unknown'}
                   </p>
                 )}
                 {job.description && (

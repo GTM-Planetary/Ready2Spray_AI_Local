@@ -520,11 +520,29 @@
 - [ ] Add maintenance due date alerts
 - [ ] Show maintenance history timeline
 
-### Job Integration
-- [ ] Add equipment dropdown to Jobs creation/edit form
-- [ ] Show assigned equipment on job cards
-- [ ] Add equipment availability calendar
-- [ ] Prevent double-booking equipment
+### Job Integration (COMPLETE)
+- [x] Add equipment dropdown to Jobs creation/edit form
+- [x] Show assigned equipment on job cards
+- [x] Filter to show only active equipment in dropdown
+- [ ] Add equipment availability checking logic (future enhancement)
+- [ ] Prevent double-booking equipment with validation (future enhancement)
+
+### Equipment Utilization Dashboard (COMPLETE)
+- [x] Create EquipmentDashboard.tsx page
+- [x] Add utilization rate calculations (based on jobs assigned)
+- [x] Show hours flown/driven per equipment (estimated)
+- [x] Display active/completed/total jobs per equipment
+- [x] Show maintenance alerts for overdue equipment
+- [x] Add route to sidebar navigation (Equipment Analytics)
+
+### Maintenance Scheduler (IN PROGRESS)
+- [ ] Create maintenance_tasks table in database
+- [ ] Add maintenance task CRUD procedures
+- [ ] Create MaintenanceScheduler component
+- [ ] Implement recurring task creation
+- [ ] Add automatic reminder notifications
+- [ ] Build maintenance history timeline
+- [ ] Add cost tracking for maintenance
 
 ### Testing
 - [ ] Test equipment CRUD operations
