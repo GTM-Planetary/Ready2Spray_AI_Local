@@ -228,3 +228,11 @@
 - [x] Fix server binding (added '0.0.0.0' to listen call)
 - [x] Fix preview display issues in Management UI
 - [ ] Test complete authentication flow end-to-end with actual login
+
+## OAuth Callback Fix - Session Pooler (COMPLETED)
+- [x] Identified IPv4 compatibility issue with direct Supabase connection
+- [x] Updated connection string to use Session Pooler instead of direct connection
+- [x] Changed hostname from db.yqimcvatzaldidmqmvtr.supabase.co to aws-1-us-west-1.pooler.supabase.com
+- [x] Verified DNS resolution and connectivity to pooler endpoint
+- [x] Tested login flow end-to-end - SUCCESS
+- [x] User can now sign in and access dashboard

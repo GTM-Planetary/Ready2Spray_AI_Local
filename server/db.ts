@@ -8,15 +8,21 @@ let _db: ReturnType<typeof drizzle> | null = null;
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  const connectionString = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+  // Build Supabase connection string with password from secret (using Session Pooler for IPv4 compatibility)
+  const supabasePassword = process.env.R2S_Supabase;
+  const supabaseUrl = supabasePassword 
+    ? `postgresql://postgres.yqimcvatzaldidmqmvtr:${encodeURIComponent(supabasePassword)}@aws-1-us-west-1.pooler.supabase.com:5432/postgres`
+    : null;
+  
+  const connectionString = supabaseUrl || process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
   
   if (!_db && connectionString) {
     try {
       const client = postgres(connectionString, {
         ssl: { rejectUnauthorized: false },
-        max: 10,
-        idle_timeout: 20,
-        connect_timeout: 10,
+        max: 1,
+        idle_timeout: 0,
+        max_lifetime: 60 * 30,
       });
       _db = drizzle(client);
     } catch (error) {
