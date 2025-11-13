@@ -36,20 +36,6 @@
       "when": 1763044677461,
       "tag": "0004_mean_james_howlett",
       "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1763057559701,
-      "tag": "0005_curious_sleepwalker",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1763057615449,
-      "tag": "0006_lethal_blazing_skull",
-      "breakpoints": true
     }
   ]
 }

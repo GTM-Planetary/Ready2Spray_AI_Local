@@ -976,17 +976,3 @@ export async function deleteServicePlan(id: number) {
   
   await db.delete(servicePlans).where(eq(servicePlans.id, id));
 }
-
-// User Management Functions
-export async function updateUserRole(userId: number, systemRole: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db
-    .update(users)
-    .set({ systemRole: systemRole as any, updatedAt: new Date() })
-    .where(eq(users.id, userId))
-    .returning();
-  
-  return result[0];
-}

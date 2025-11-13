@@ -22,7 +22,6 @@ import Sites from "./pages/Sites";
 import ServicePlans from "./pages/ServicePlans";
 import EmailTest from "./pages/EmailTest";
 import CustomerPortal from "./pages/CustomerPortal";
-import UserManagement from "./pages/UserManagement";
 
 function Router() {
   return (
@@ -44,7 +43,6 @@ function Router() {
         <Route path="/product-lookup" component={ProductLookup} />
         <Route path="/settings" component={Settings} />
         <Route path="/email-test" component={EmailTest} />
-        <Route path="/user-management" component={UserManagement} />
         <Route path="/customer-portal" component={CustomerPortal} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />

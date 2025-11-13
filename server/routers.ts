@@ -802,28 +802,6 @@ Be concise and practical. When presenting data from tools, format it clearly.`,
         return { success: true, messageId: result.messageId };
       }),
   }),
-
-  // Users router for User Management
-  users: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      const { getOrCreateUserOrganization } = await import("./db");
-      const org = await getOrCreateUserOrganization(ctx.user.id);
-      // For now, return all users (in production, filter by org membership)
-      const { users } = await import("../drizzle/schema");
-      const db = await import("./db").then(m => m.getDb());
-      if (!db) return [];
-      return await db.select().from(users);
-    }),
-    updateRole: protectedProcedure
-      .input(z.object({
-        userId: z.number(),
-        systemRole: z.enum(["admin", "manager", "technician", "sales", "ops", "viewer"]),
-      }))
-      .mutation(async ({ input }) => {
-        const { updateUserRole } = await import("./db");
-        return await updateUserRole(input.userId, input.systemRole);
-      }),
-  }),
 });
 
 export type AppRouter = typeof appRouter;

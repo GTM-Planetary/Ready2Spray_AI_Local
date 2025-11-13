@@ -1,8 +1,0 @@
-{
-  "query": "ALTER TABLE personnel ADD COLUMN user_id INTEGER REFERENCES users(id);",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3LAnvSXMR8umuBe.cb88ed38e99c --database 6adCeCxV2Yg38ygq7gdRsu --execute ALTER TABLE personnel ADD COLUMN user_id INTEGER REFERENCES users(id);",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1060 (42S21) at line 1: Duplicate column name 'user_id'"
-  ]
-}

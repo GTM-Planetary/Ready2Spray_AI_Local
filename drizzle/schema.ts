@@ -8,7 +8,6 @@ import { boolean, integer, json, numeric, pgEnum, pgTable, text, timestamp, varc
 
 // Define enums
 export const roleEnum = pgEnum("role", ["user", "admin"]);
-export const systemRoleEnum = pgEnum("system_role", ["admin", "manager", "technician", "sales", "ops", "viewer"]);
 export const subscriptionPlanEnum = pgEnum("subscription_plan", ["FREE", "BASIC", "PRO", "ENTERPRISE"]);
 export const personnelRoleEnum = pgEnum("personnel_role", ["applicator", "technician", "driver", "pilot", "ground_crew", "manager", "dispatcher"]);
 export const statusEnum = pgEnum("status", ["active", "on_leave", "inactive"]);
@@ -43,7 +42,6 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: roleEnum("role").default("user").notNull(),
-  systemRole: systemRoleEnum("system_role").default("viewer"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -179,7 +177,6 @@ export type InsertEquipment = typeof equipment.$inferInsert;
 export const personnel = pgTable("personnel", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   orgId: integer("org_id").notNull().references(() => organizations.id),
-  userId: integer("user_id").references(() => users.id), // Link to user account (optional)
   name: text("name").notNull(),
   email: varchar("email", { length: 320 }),
   phone: varchar("phone", { length: 20 }),
