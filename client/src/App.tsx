@@ -20,6 +20,8 @@ import Equipment from "@/pages/Equipment";
 import EquipmentDashboard from "@/pages/EquipmentDashboard";
 import Sites from "./pages/Sites";
 import ServicePlans from "./pages/ServicePlans";
+import EmailTest from "./pages/EmailTest";
+import CustomerPortal from "./pages/CustomerPortal";
 
 function Router() {
   return (
@@ -40,6 +42,8 @@ function Router() {
         <Route path="/maps" component={Maps} />
         <Route path="/product-lookup" component={ProductLookup} />
         <Route path="/settings" component={Settings} />
+        <Route path="/email-test" component={EmailTest} />
+        <Route path="/customer-portal" component={CustomerPortal} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

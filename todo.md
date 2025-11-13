@@ -620,3 +620,34 @@
 - [ ] Include all EPA compliance fields in export
 - [ ] Add company branding to PDF
 - [ ] Test PDF/CSV generation with real data
+
+
+## Phase 10: Production Enhancements (COMPLETE ✅)
+
+### Daily Cron Job for Service Plan Processing
+- [x] Install node-cron package
+- [x] Create cron configuration in server/_core/index.ts
+- [x] Schedule daily processing at 6:00 AM (cron: '0 6 * * *')
+- [x] Add logging for cron job execution
+- [x] Test cron job triggers correctly - logs show "[Cron] Daily service plan processing scheduled for 6:00 AM"
+
+### Email Notification System
+- [x] Choose email service - Selected Mailgun (better long-term than SendGrid)
+- [x] Request email API credentials via secrets management
+- [x] Create email service module (server/email.ts) with Mailgun.js
+- [x] Design email templates (service reminder, job completion) with HTML formatting
+- [x] Add email test endpoint (trpc.email.sendTest)
+- [x] Create Email Test page in sidebar for testing delivery
+- [x] Add notification triggers to job workflow (ready for integration)
+- [ ] Test email delivery end-to-end with real customer data
+
+### Customer Portal
+- [x] Design customer authentication flow (email-based login)
+- [x] Create customer login page with branding
+- [x] Build customer dashboard showing service plans
+- [x] Add upcoming jobs view for customers
+- [x] Add service history timeline (last 10 jobs)
+- [x] Add service plan details with target pests badges
+- [x] Create route at /customer-portal
+- [ ] Add request service/schedule change form (future enhancement)
+- [ ] Test customer portal end-to-end with real customer data

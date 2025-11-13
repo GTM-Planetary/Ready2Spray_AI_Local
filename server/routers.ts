@@ -785,6 +785,23 @@ Be concise and practical. When presenting data from tools, format it clearly.`,
         return result;
       }),
   }),
+  email: router({
+    sendTest: protectedProcedure
+      .input(z.object({ email: z.string().email() }))
+      .mutation(async ({ input, ctx }) => {
+        const { user } = ctx;
+        // Only allow admin users to send test emails
+        if (user.role !== 'admin') {
+          throw new Error('Only administrators can send test emails');
+        }
+        const { sendTestEmail } = await import("./email");
+        const result = await sendTestEmail(input.email);
+        if (!result.success) {
+          throw new Error('Failed to send test email');
+        }
+        return { success: true, messageId: result.messageId };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

@@ -7,6 +7,7 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import cron from "node-cron";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -60,6 +61,27 @@ async function startServer() {
   server.listen(port, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
+
+  // Set up daily cron job for service plan processing at 6:00 AM
+  // Cron format: second minute hour day month weekday
+  // '0 6 * * *' = Every day at 6:00 AM
+  cron.schedule('0 6 * * *', async () => {
+    console.log('[Cron] Running daily service plan processing at 6:00 AM...');
+    try {
+      const { processServicePlans } = await import('../servicePlanScheduler');
+      const result = await processServicePlans();
+      console.log(`[Cron] Service plan processing complete: ${result.generated} jobs generated from ${result.processed} plans, ${result.errors} errors`);
+    } catch (error) {
+      console.error('[Cron] Service plan processing failed:', error);
+    }
+  });
+
+  console.log('[Cron] Daily service plan processing scheduled for 6:00 AM');
+  
+  // Optional: Run immediately on server start for testing (comment out in production)
+  // console.log('[Cron] Running initial service plan processing...');
+  // const { processServicePlans } = await import('../servicePlanScheduler');
+  // await processServicePlans();
 }
 
 startServer().catch(console.error);
