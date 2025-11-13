@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
+import { updateOrganizationSchema } from "./validation";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -25,19 +26,7 @@ export const appRouter = router({
       return await getOrCreateUserOrganization(ctx.user.id);
     }),
     update: protectedProcedure
-      .input(
-        z.object({
-          name: z.string().optional(),
-          address: z.string().optional(),
-          city: z.string().optional(),
-          state: z.string().optional(),
-          zipCode: z.string().optional(),
-          phone: z.string().optional(),
-          email: z.string().optional(),
-          website: z.string().optional(),
-          notes: z.string().optional(),
-        })
-      )
+      .input(updateOrganizationSchema)
       .mutation(async ({ ctx, input }) => {
         const { updateOrganization } = await import("./db");
         const { getOrCreateUserOrganization } = await import("./db");

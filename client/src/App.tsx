@@ -19,16 +19,16 @@ function Router() {
   return (
     <DashboardLayout>
       <Switch>
-         <Route path="/" component={Dashboard} />
+        <Route path="/" component={Dashboard} />
         <Route path="/jobs/:id" component={JobDetail} />
         <Route path="/jobs" component={Jobs} />
         <Route path="/customers" component={Customers} />
         <Route path="/personnel" component={Personnel} />
-      <Route path="/chat" component={Chat} />
-      <Route path="/maps" component={Maps} />
-      <Route path="/product-lookup" component={ProductLookup} />
-      <Route path="/settings" component={Settings} />
-        <Route path={"/ 404"} component={NotFound} />
+        <Route path="/chat" component={Chat} />
+        <Route path="/maps" component={Maps} />
+        <Route path="/product-lookup" component={ProductLookup} />
+        <Route path="/settings" component={Settings} />
+        <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
     </DashboardLayout>

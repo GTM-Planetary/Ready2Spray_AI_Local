@@ -37,6 +37,8 @@ export default function Settings() {
     email: "",
     website: "",
     notes: "",
+    mode: "ag_aerial" as "ag_aerial" | "residential_pest" | "both",
+    featuresEnabled: [] as string[],
   });
 
   const { data: organization, isLoading } = trpc.organization.get.useQuery();
@@ -65,6 +67,8 @@ export default function Settings() {
         email: organization.email || "",
         website: organization.website || "",
         notes: organization.notes || "",
+        mode: (organization.mode as "ag_aerial" | "residential_pest" | "both") || "ag_aerial",
+        featuresEnabled: (organization.featuresEnabled as string[]) || [],
       });
     }
   }, [organization]);
@@ -218,6 +222,154 @@ export default function Settings() {
                   placeholder="Additional information about your organization"
                   rows={4}
                 />
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                <Save className="mr-2 h-4 w-4" />
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Organization Mode Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Organization Mode</CardTitle>
+          <CardDescription>
+            Select your organization type to customize the interface and features
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="mode">Organization Type *</Label>
+                <Select
+                  value={formData.mode}
+                  onValueChange={(value: "ag_aerial" | "residential_pest" | "both") =>
+                    setFormData({ ...formData, mode: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select organization type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ag_aerial">Ag Aerial (Crop Dusting)</SelectItem>
+                    <SelectItem value="residential_pest">Residential Pest Control</SelectItem>
+                    <SelectItem value="both">Both (Ag Aerial + Pest Control)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground">
+                  {formData.mode === "ag_aerial" && "Optimized for crop dusting operations with flight boards, load sheets, and field management."}
+                  {formData.mode === "residential_pest" && "Optimized for pest control with service plans, zones, and route boards."}
+                  {formData.mode === "both" && "Full platform with features for both crop dusting and pest control operations."}
+                </p>
+              </div>
+
+              <div className="grid gap-2">
+                <Label>Enabled Features</Label>
+                <div className="space-y-2">
+                  {(formData.mode === "ag_aerial" || formData.mode === "both") && (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="flight_board"
+                          checked={formData.featuresEnabled.includes("flight_board")}
+                          onChange={(e) => {
+                            const features = e.target.checked
+                              ? [...formData.featuresEnabled, "flight_board"]
+                              : formData.featuresEnabled.filter((f) => f !== "flight_board");
+                            setFormData({ ...formData, featuresEnabled: features });
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor="flight_board" className="text-sm font-medium">
+                          Flight Board (Pilot mobile view)
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="load_sheets"
+                          checked={formData.featuresEnabled.includes("load_sheets")}
+                          onChange={(e) => {
+                            const features = e.target.checked
+                              ? [...formData.featuresEnabled, "load_sheets"]
+                              : formData.featuresEnabled.filter((f) => f !== "load_sheets");
+                            setFormData({ ...formData, featuresEnabled: features });
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor="load_sheets" className="text-sm font-medium">
+                          Load Sheets (Ground crew mobile view)
+                        </label>
+                      </div>
+                    </>
+                  )}
+                  {(formData.mode === "residential_pest" || formData.mode === "both") && (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="service_plans"
+                          checked={formData.featuresEnabled.includes("service_plans")}
+                          onChange={(e) => {
+                            const features = e.target.checked
+                              ? [...formData.featuresEnabled, "service_plans"]
+                              : formData.featuresEnabled.filter((f) => f !== "service_plans");
+                            setFormData({ ...formData, featuresEnabled: features });
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor="service_plans" className="text-sm font-medium">
+                          Service Plans (Recurring services)
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="zones"
+                          checked={formData.featuresEnabled.includes("zones")}
+                          onChange={(e) => {
+                            const features = e.target.checked
+                              ? [...formData.featuresEnabled, "zones"]
+                              : formData.featuresEnabled.filter((f) => f !== "zones");
+                            setFormData({ ...formData, featuresEnabled: features });
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor="zones" className="text-sm font-medium">
+                          Zones (Treatment areas)
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="routes"
+                          checked={formData.featuresEnabled.includes("routes")}
+                          onChange={(e) => {
+                            const features = e.target.checked
+                              ? [...formData.featuresEnabled, "routes"]
+                              : formData.featuresEnabled.filter((f) => f !== "routes");
+                            setFormData({ ...formData, featuresEnabled: features });
+                          }}
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor="routes" className="text-sm font-medium">
+                          Route Board (Pest tech mobile view)
+                        </label>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 

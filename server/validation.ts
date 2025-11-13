@@ -215,4 +215,6 @@ export const updateOrganizationSchema = z.object({
   email: emailSchema.optional(),
   website: z.string().url("Invalid website URL").or(z.literal("")).optional(),
   notes: z.string().optional(),
+  mode: z.enum(["ag_aerial", "residential_pest", "both"]).optional(),
+  featuresEnabled: z.array(z.string()).optional(),
 });

@@ -359,3 +359,50 @@
   - [ ] Test all job operations
   - [ ] Test organization operations
   - [ ] Document all bugs found
+
+
+## Phase 6: Third-Party Integrations
+- [ ] Zoho CRM Integration
+  - [ ] Research Zoho CRM API documentation
+  - [ ] Design data mapping (customers, jobs, contacts)
+  - [ ] Implement OAuth 2.0 authentication flow
+  - [ ] Create Zoho CRM service module
+  - [ ] Implement customer sync (bidirectional)
+  - [ ] Implement job/deal sync (bidirectional)
+  - [ ] Implement contact sync
+  - [ ] Add webhook handlers for real-time updates
+  - [ ] Create Zoho CRM settings UI
+  - [ ] Test complete sync workflow
+- [ ] FieldPulse Integration
+  - [ ] Research FieldPulse API documentation
+  - [ ] Design data mapping (customers, jobs, technicians)
+  - [ ] Implement API key authentication
+  - [ ] Create FieldPulse service module
+  - [ ] Implement customer sync (bidirectional)
+  - [ ] Implement job sync (bidirectional)
+  - [ ] Implement technician/personnel sync
+  - [ ] Add webhook handlers for real-time updates
+  - [ ] Create FieldPulse settings UI
+  - [ ] Test complete sync workflow
+- [ ] Integration Management UI
+  - [ ] Add Integrations section to Settings page
+  - [ ] Create connection status indicators
+  - [ ] Add sync controls (manual sync, auto-sync toggle)
+  - [ ] Add sync history/logs display
+  - [ ] Add error handling and retry mechanisms
+  - [ ] Add field mapping configuration UI
+
+
+## Phase 1: Database Schema Expansion (COMPLETE)
+- [x] Create new enum types (org_mode, site_type, property_type, zone_type, equipment_type, equipment_status, product_type, signal_word, application_method, service_plan_type, service_plan_status)
+- [x] Add new personnel roles (ground_crew, manager, dispatcher)
+- [x] Create sites table with polygon, acres, crop, sensitive areas
+- [x] Create zones table for pest control treatment areas
+- [x] Create equipment table for planes, trucks, rigs
+- [x] Create products_new table for chemical catalog with EPA compliance fields
+- [x] Create product_use table for rate ranges by crop/pest
+- [x] Create service_plans table for recurring pest control services
+- [x] Create applications table for historical records
+- [x] Add mode and features_enabled columns to organizations table
+- [x] Add site_id, equipment_id, service_plan_id, acres, carrier_volume, num_loads, zones_to_treat, weather fields to jobs table
+- [x] All tables created successfully in Supabase database

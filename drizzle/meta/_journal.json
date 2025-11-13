@@ -15,6 +15,13 @@
       "when": 1763012539571,
       "tag": "0001_magical_nextwave",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1763015721405,
+      "tag": "0002_smart_ultimates",
+      "breakpoints": true
     }
   ]
 }
