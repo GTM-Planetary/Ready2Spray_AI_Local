@@ -324,5 +324,5 @@
 - [x] Set NODE_ENV=production and expose port 3000
 - [x] Set CMD to run node dist/index.js
 - [x] Create .dockerignore to optimize build
-- [ ] Push Dockerfile to GitHub and create checkpoint
-- [ ] Verify deployment succeeds
+- [x] Push Dockerfile to GitHub and create checkpoint
+- [ ] Verify deployment succeeds (user to test)
