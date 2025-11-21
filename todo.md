@@ -348,3 +348,331 @@
 - [ ] Test authentication flow in production environment
 - [ ] Verify all static assets load correctly (no 404s)
 - [ ] Test job creation and data persistence in production
+
+# COMPREHENSIVE DEVELOPMENT PLAN (from Pasted_content_11.txt)
+
+## 🚨 CRITICAL - Deployment Blockers (Must Fix Before Launch)
+
+### 1. Docker Build Failure
+- [x] Debug TypeScript compilation in Docker context
+- [x] Verify all dependencies resolve correctly in container
+- [ ] Test multi-stage build process in production
+- [ ] Validate environment variable injection in deployed container
+- [ ] Document Docker deployment process
+
+### 2. Environment Configuration
+Missing Configurations:
+- [ ] Mailgun API credentials (email service non-functional)
+- [ ] Stripe API key validation errors (billing broken)
+- [ ] OAuth server URL verification
+- [ ] Production database connection string validation
+Tasks:
+- [ ] Set up production Mailgun account
+- [ ] Fix Stripe secret key validation
+- [ ] Create environment variable template (.env.example)
+- [ ] Document all required environment variables
+
+### 3. Mobile Authentication Bug
+- [ ] Debug OAuth callback flow on mobile browsers
+- [ ] Test session cookie persistence across mobile platforms
+- [ ] Verify JWT token refresh mechanism
+- [ ] Add mobile-specific session handling
+
+## 🔴 HIGH PRIORITY - Core Feature Gaps
+
+### 4. Weather Integration (CRITICAL FOR SPRAY OPERATIONS)
+Why Critical: Spray operations depend entirely on weather conditions
+Features Needed:
+- [ ] Real-time wind speed/direction monitoring
+- [ ] Temperature and humidity tracking
+- [ ] Precipitation forecasts
+- [ ] Spray window recommendations (ideal conditions)
+- [ ] Weather alerts for scheduled jobs
+- [ ] Historical weather data for compliance records
+Suggested APIs:
+- [ ] Evaluate NOAA/Weather.gov API (free, US-focused)
+- [ ] Evaluate OpenWeatherMap or WeatherAPI (global coverage)
+- [ ] Evaluate Weather Underground (agricultural focus)
+
+### 5. Interactive Mapping & GIS Visualization
+Current Gap: KML upload exists but no visualization
+Features Needed:
+- [ ] Interactive map display of all sites
+- [ ] Site boundary visualization (polygons)
+- [ ] Coverage area calculation and display
+- [ ] Flight path visualization
+- [ ] Real-time aircraft position tracking
+- [ ] Multi-layer maps (sites, equipment, weather)
+- [ ] Distance and acreage calculations
+- [ ] Print/export map views
+Suggested Tools:
+- [ ] Evaluate Mapbox GL JS (best for custom styling)
+- [ ] Evaluate Google Maps Platform (familiar UX)
+- [ ] Evaluate Leaflet (open source alternative)
+
+### 6. Customer Portal
+Current Gap: Customers have no self-service access
+Features Needed:
+- [ ] Customer login and dashboard
+- [ ] View service history and upcoming jobs
+- [ ] Real-time job status tracking
+- [ ] Access spray records and compliance documentation
+- [ ] Request new services
+- [ ] View and pay invoices
+- [ ] Download reports (application records, invoices)
+- [ ] Communication with service team
+- [ ] Profile and site management
+
+### 7. Invoicing & Financial Management
+Current Gap: Subscription billing works, but no job billing
+Features Needed:
+- [ ] Job-based invoice generation
+- [ ] Pricing templates and rate sheets
+- [ ] Job quoting system
+- [ ] Accounts receivable tracking
+- [ ] Payment processing integration
+- [ ] Invoice delivery (email, portal)
+- [ ] Payment history and receipts
+- [ ] Financial reporting (revenue, AR aging)
+- [ ] Integration with QuickBooks/Xero
+
+### 8. Compliance & Regulatory Reporting
+Current Gap: Data tracked but no automated reports
+Features Needed:
+- [ ] EPA application records (automatic generation)
+- [ ] State-specific pesticide use reports
+- [ ] Spray record exports (PDF, CSV)
+- [ ] Pilot certification expiry alerts
+- [ ] Equipment calibration tracking
+- [ ] Pre-spray notification generation
+- [ ] Buffer zone compliance verification
+- [ ] Restricted entry interval (REI) tracking
+- [ ] Export formats for regulatory submissions
+
+### 9. Load Sheet Generation
+Current Gap: Mentioned in todo but not implemented
+Features Needed:
+- [ ] Automatic load sheet calculation
+- [ ] Weight and balance computations
+- [ ] Chemical mixing instructions
+- [ ] Application rate verification
+- [ ] PDF export for pilot use
+- [ ] Tank capacity validation
+- [ ] Multiple product mixing calculator
+- [ ] Safety precautions and PPE requirements
+
+## 🟡 MEDIUM PRIORITY - Quality & Completeness
+
+### 10. Real-Time Capabilities
+Current Gap: No WebSocket implementation
+Features Needed:
+- [ ] Real-time job status updates
+- [ ] Live aircraft tracking
+- [ ] Team location sharing
+- [ ] Push notifications (browser, mobile)
+- [ ] Real-time chat between team members
+- [ ] Live weather updates
+- [ ] Equipment status monitoring
+Technology: Socket.io or native WebSocket
+
+### 11. Mobile App Development
+Current Gap: Responsive web only
+Features Needed:
+- [ ] Native iOS and Android apps
+- [ ] Offline-first capability
+- [ ] GPS tracking for personnel
+- [ ] Photo capture for job documentation
+- [ ] Voice notes and dictation
+- [ ] Push notifications
+- [ ] Barcode scanning (chemical products)
+- [ ] Signature capture (customer sign-off)
+Technology: React Native (reuse React knowledge)
+
+### 12. Advanced Analytics Dashboard
+Current Gap: Basic stats only
+Features Needed:
+- [ ] Revenue analytics and trends
+- [ ] Job profitability analysis
+- [ ] Personnel productivity metrics
+- [ ] Equipment utilization tracking
+- [ ] Chemical usage trends
+- [ ] Customer lifetime value
+- [ ] Retention and churn analysis
+- [ ] Seasonal forecasting
+- [ ] Custom report builder
+- [ ] Export to Excel/CSV
+
+### 13. Enhanced Equipment Management
+Current Gap: Basic tracking only
+Features Needed:
+- [ ] Predictive maintenance scheduling
+- [ ] Maintenance cost tracking
+- [ ] Equipment downtime analytics
+- [ ] Fuel consumption tracking
+- [ ] Hourly rate calculations
+- [ ] Calibration scheduling and records
+- [ ] Maintenance vendor management
+- [ ] Parts inventory tracking
+- [ ] Maintenance history export
+
+### 14. Advanced Job Scheduling
+Current Gap: Basic calendar view
+Features Needed:
+- [ ] Drag-and-drop job rescheduling
+- [ ] Resource conflict detection (equipment, personnel)
+- [ ] Optimal route planning
+- [ ] Multi-day job support
+- [ ] Recurring job templates
+- [ ] Job dependencies
+- [ ] Automatic personnel assignment based on certifications
+- [ ] Weather-based scheduling recommendations
+
+## 🟢 LOWER PRIORITY - Polish & Enhancement
+
+### 15. Testing & Quality Assurance
+Current Gap: Only 6 test files, no E2E tests
+Tasks:
+- [ ] E2E tests for critical user flows (Playwright/Cypress)
+- [ ] Integration tests for external services
+- [ ] Visual regression testing
+- [ ] Performance testing and benchmarking
+- [ ] Load testing for multi-tenant scenarios
+- [ ] API endpoint testing (expand coverage)
+- [ ] Security testing (OWASP top 10)
+- [ ] Accessibility testing (WCAG compliance)
+
+### 16. Documentation
+Current Gaps: No README, no deployment guide
+Tasks:
+- [ ] Comprehensive README with setup instructions
+- [ ] API documentation page (webhook endpoints)
+- [ ] User documentation and guides
+- [ ] Administrator manual
+- [ ] Video tutorials
+- [ ] Deployment runbook
+- [ ] Troubleshooting guide
+- [ ] Changelog maintenance
+- [ ] Architecture documentation
+
+### 17. Security Enhancements
+Current Gaps: Basic security only
+Tasks:
+- [ ] Two-factor authentication (2FA/MFA)
+- [ ] SMS verification for phone numbers
+- [ ] CAPTCHA on signup and login
+- [ ] Rate limiting on all auth endpoints
+- [ ] API key rotation mechanism
+- [ ] Security headers (CSP, HSTS, etc.)
+- [ ] Session management improvements
+- [ ] Audit log UI with search/filter
+- [ ] IP whitelisting for API keys
+- [ ] Data encryption at rest
+
+### 18. Monitoring & Observability
+Current Gap: No production monitoring
+Tasks:
+- [ ] Error tracking integration (Sentry, Rollbar)
+- [ ] Application performance monitoring (APM)
+- [ ] Database query performance monitoring
+- [ ] Uptime monitoring (Pingdom, UptimeRobot)
+- [ ] Log aggregation (Logtail, Papertrail)
+- [ ] Health check endpoints
+- [ ] Status page for customers
+- [ ] Alert configuration (Slack, PagerDuty)
+
+### 19. Performance Optimization
+Tasks:
+- [ ] Database query optimization and indexing
+- [ ] Implement caching strategy (Redis)
+- [ ] CDN setup for static assets
+- [ ] Lazy loading for heavy components
+- [ ] Image optimization and compression
+- [ ] Bundle size optimization
+- [ ] Database connection pooling tuning
+- [ ] API response compression
+
+### 20. Additional Integrations
+Current: Zoho CRM and FieldPulse partially implemented
+Needed:
+- [ ] QuickBooks/Xero accounting integration
+- [ ] Google Calendar sync
+- [ ] Twilio SMS notifications
+- [ ] FarmLogs integration
+- [ ] Drone data import (DroneDeploy, Pix4D)
+- [ ] John Deere Operations Center
+- [ ] Climate FieldView
+- [ ] Ag Leader integration
+
+## 🎯 NICE TO HAVE - Competitive Advantages
+
+### 21. AI-Powered Features
+Opportunities:
+- [ ] AI spray recommendations based on weather, crop, pest
+- [ ] Predictive maintenance using equipment data
+- [ ] Optimal spray window prediction
+- [ ] Intelligent job scheduling
+- [ ] Chatbot for customer support
+- [ ] Chemical product recommendations
+- [ ] Pricing optimization suggestions
+- [ ] Anomaly detection (unusual chemical usage, costs)
+
+### 22. Advanced GIS Features
+Features:
+- [ ] Prescription mapping for variable rate application
+- [ ] Soil type integration
+- [ ] Yield data overlay
+- [ ] NDVI imagery integration
+- [ ] 3D terrain visualization
+- [ ] Obstacle mapping (power lines, buildings)
+- [ ] Flight path optimization
+- [ ] Coverage gap detection
+
+### 23. Marketplace & Ecosystem
+Features:
+- [ ] Third-party app marketplace
+- [ ] Public API with developer portal
+- [ ] Webhook templates library
+- [ ] Integration marketplace
+- [ ] Community forums
+- [ ] Shared chemical product database
+- [ ] Industry benchmarking data
+
+## 📋 RECOMMENDED IMPLEMENTATION PHASES
+
+### Phase 1: Fix Blockers (Week 1-2)
+- [x] Fix Docker build
+- [ ] Configure all environment variables
+- [ ] Resolve Stripe validation
+- [ ] Fix mobile auth loop
+- [ ] Write deployment documentation
+
+### Phase 2: Core Domain Features (Week 3-6)
+- [ ] Weather API integration
+- [ ] Interactive mapping
+- [ ] Customer portal (basic)
+- [ ] Invoicing system
+- [ ] Load sheet generation
+
+### Phase 3: Compliance & Quality (Week 7-10)
+- [ ] EPA compliance reports
+- [ ] E2E test suite
+- [ ] Error tracking
+- [ ] API documentation
+- [ ] Security enhancements (2FA)
+
+### Phase 4: Real-Time & Mobile (Week 11-14)
+- [ ] WebSocket implementation
+- [ ] Mobile app development
+- [ ] Offline capability
+- [ ] Push notifications
+
+### Phase 5: Analytics & Optimization (Week 15-18)
+- [ ] Advanced analytics
+- [ ] Performance optimization
+- [ ] Additional integrations
+- [ ] Monitoring and observability
+
+### Phase 6: Advanced Features (Ongoing)
+- [ ] AI-powered recommendations
+- [ ] Advanced GIS features
+- [ ] Marketplace development
