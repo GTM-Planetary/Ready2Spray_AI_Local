@@ -162,9 +162,9 @@ export default function JobV2Detail() {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-bold">{job.title}</h1>
-                {job.status && (
-                  <Badge className={getStatusColor(job.status)}>
-                    {job.status.replace('_', ' ')}
+                {job.statusId && (
+                  <Badge className={getStatusColor(job.statusId)}>
+                    Status ID: {job.statusId}
                   </Badge>
                 )}
                 {job.priority && (
