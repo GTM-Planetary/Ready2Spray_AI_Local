@@ -286,10 +286,11 @@
 - [x] Resolve all 45 TypeScript compilation errors
 
 ## TypeScript Error Fixes - Round 2
-- [ ] Fix getJobsByOrgId query to include all job fields (notes, statusId, chemicalProduct, applicationRate, etc.)
-- [ ] Fix field name mismatches in frontend components (location vs locationAddress, latitude vs locationLat)
-- [ ] Fix status vs statusId inconsistencies across all components
+- [x] Fix getJobsByOrgId query to include all job fields (notes, statusId, chemicalProduct, applicationRate, etc.)
+- [x] Fix field name mismatches in frontend components (location vs locationAddress, latitude vs locationLat)
+- [x] Fix status vs statusId inconsistencies across all components
 - [ ] Fix InsertJob type import errors
-- [ ] Fix JobDetail.tsx to use correct field names
+- [x] Fix JobDetail.tsx to use correct field names
 - [ ] Fix FlightBoard.tsx to use correct field names
 - [ ] Resolve all 52 remaining TypeScript errors
+- [x] Push code to GitHub repository
