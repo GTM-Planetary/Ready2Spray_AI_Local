@@ -1,0 +1,22 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS jobs (\n  id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n  org_id INTEGER NOT NULL,\n  customer_id INTEGER,\n  site_id INTEGER,\n  assigned_personnel_id INTEGER,\n  equipment_id INTEGER,\n  service_plan_id INTEGER,\n  product_id INTEGER,\n  title TEXT NOT NULL,\n  description TEXT,\n  job_type VARCHAR(50) NOT NULL,\n  status_id INTEGER,\n  priority VARCHAR(20) DEFAULT 'medium' NOT NULL,\n  location_address TEXT,\n  location_lat VARCHAR(50),\n  location_lng VARCHAR(50),\n  scheduled_start TIMESTAMP,\n  scheduled_end TIMESTAMP,\n  actual_start TIMESTAMP,\n  actual_end TIMESTAMP,\n  notes TEXT,\n  state VARCHAR(100),\n  commodity_crop VARCHAR(200),\n  target_pest VARCHAR(200),\n  epa_number VARCHAR(100),\n  application_rate VARCHAR(100),\n  application_method VARCHAR(100),\n  chemical_product VARCHAR(200),\n  re_entry_interval VARCHAR(100),\n  preharvest_interval VARCHAR(100),\n  max_applications_per_season VARCHAR(50),\n  max_rate_per_season VARCHAR(100),\n  methods_allowed VARCHAR(200),\n  rate VARCHAR(100),\n  diluent_aerial VARCHAR(100),\n  diluent_ground VARCHAR(100),\n  diluent_chemigation VARCHAR(100),\n  generic_conditions TEXT,\n  acres NUMERIC(10, 2),\n  carrier_volume NUMERIC(10, 2),\n  carrier_unit VARCHAR(50) DEFAULT 'GPA',\n  num_loads INTEGER,\n  zones_to_treat JSONB,\n  weather_conditions VARCHAR(255),\n  temperature_f NUMERIC(5, 2),\n  wind_speed_mph NUMERIC(5, 2),\n  wind_direction VARCHAR(10),\n  created_at TIMESTAMP DEFAULT NOW() NOT NULL,\n  updated_at TIMESTAMP DEFAULT NOW() NOT NULL\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3LAnvSXMR8umuBe.7ce7968d7659 --database dmpQCHmFJYDLuYDsnydHYb --execute CREATE TABLE IF NOT EXISTS jobs (\n  id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n  org_id INTEGER NOT NULL,\n  customer_id INTEGER,\n  site_id INTEGER,\n  assigned_personnel_id INTEGER,\n  equipment_id INTEGER,\n  service_plan_id INTEGER,\n  product_id INTEGER,\n  title TEXT NOT NULL,\n  description TEXT,\n  job_type VARCHAR(50) NOT NULL,\n  status_id INTEGER,\n  priority VARCHAR(20) DEFAULT 'medium' NOT NULL,\n  location_address TEXT,\n  location_lat VARCHAR(50),\n  location_lng VARCHAR(50),\n  scheduled_start TIMESTAMP,\n  scheduled_end TIMESTAMP,\n  actual_start TIMESTAMP,\n  actual_end TIMESTAMP,\n  notes TEXT,\n  state VARCHAR(100),\n  commodity_crop VARCHAR(200),\n  target_pest VARCHAR(200),\n  epa_number VARCHAR(100),\n  application_rate VARCHAR(100),\n  application_method VARCHAR(100),\n  chemical_product VARCHAR(200),\n  re_entry_interval VARCHAR(100),\n  preharvest_interval VARCHAR(100),\n  max_applications_per_season VARCHAR(50),\n  max_rate_per_season VARCHAR(100),\n  methods_allowed VARCHAR(200),\n  rate VARCHAR(100),\n  diluent_aerial VARCHAR(100),\n  diluent_ground VARCHAR(100),\n  diluent_chemigation VARCHAR(100),\n  generic_conditions TEXT,\n  acres NUMERIC(10, 2),\n  carrier_volume NUMERIC(10, 2),\n  carrier_unit VARCHAR(50) DEFAULT 'GPA',\n  num_loads INTEGER,\n  zones_to_treat JSONB,\n  weather_conditions VARCHAR(255),\n  temperature_f NUMERIC(5, 2),\n  wind_speed_mph NUMERIC(5, 2),\n  wind_direction VARCHAR(10),\n  created_at TIMESTAMP DEFAULT NOW() NOT NULL,\n  updated_at TIMESTAMP DEFAULT NOW() NOT NULL\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 2 column 54 near \"IDENTITY,",
+    "  org_id INTEGER NOT NULL,",
+    "  customer_id INTEGER,",
+    "  site_id INTEGER,",
+    "  assigned_personnel_id INTEGER,",
+    "  equipment_id INTEGER,",
+    "  service_plan_id INTEGER,",
+    "  product_id INTEGER,",
+    "  title TEXT NOT NULL,",
+    "  description TEXT,",
+    "  job_type VARCHAR(50) NOT NULL,",
+    "  status_id INTEGER,",
+    "  priority VARCHAR(20) DEFAULT 'medium' NOT NULL,",
+    "  location_address TEXT,",
+    "  location"
+  ]
+}

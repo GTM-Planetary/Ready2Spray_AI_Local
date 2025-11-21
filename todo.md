@@ -294,3 +294,9 @@
 - [ ] Fix FlightBoard.tsx to use correct field names
 - [ ] Resolve all 52 remaining TypeScript errors
 - [x] Push code to GitHub repository
+
+## Critical Bug Fixes
+- [x] Fix jobs query error - getJobsV2WithRelations selecting wrong field structure
+- [x] Add missing columns to jobs table (equipment_id, site_id, service_plan_id, product_id, status_id, acres, carrier_volume, carrier_unit, num_loads, zones_to_treat, weather_conditions, temperature_f, wind_speed_mph, wind_direction)
+- [ ] Fix all remaining TypeScript errors (38 remaining, reduced from 52)
+- [x] Verify jobs page loads without errors

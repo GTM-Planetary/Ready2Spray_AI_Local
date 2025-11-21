@@ -1508,7 +1508,6 @@ export async function updateJobV2(id: number, updates: Partial<{
   const { eq } = await import("drizzle-orm");
   
   // Build update object with only provided fields
-  const { InsertJob } = await import("../drizzle/schema");
   const updateData: any = { updatedAt: new Date() };
   if (updates.title !== undefined) updateData.title = updates.title;
   if (updates.description !== undefined) updateData.description = updates.description;
@@ -1519,8 +1518,8 @@ export async function updateJobV2(id: number, updates: Partial<{
   if (updates.personnelId !== undefined) updateData.personnelId = updates.personnelId;
   if (updates.equipmentId !== undefined) updateData.equipmentId = updates.equipmentId;
   if (updates.location !== undefined) updateData.location = updates.location;
-  if (updates.locationLat !== undefined) updateData.locationLat = updates.locationLat;
-  if (updates.locationLng !== undefined) updateData.locationLng = updates.locationLng;
+  if (updates.latitude !== undefined) updateData.locationLat = updates.latitude;
+  if (updates.longitude !== undefined) updateData.locationLng = updates.longitude;
   if (updates.scheduledStart !== undefined) updateData.scheduledStart = updates.scheduledStart;
   if (updates.scheduledEnd !== undefined) updateData.scheduledEnd = updates.scheduledEnd;
   

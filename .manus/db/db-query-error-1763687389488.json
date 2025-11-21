@@ -1,0 +1,12 @@
+{
+  "query": "ALTER TABLE jobs \n  ADD COLUMN IF NOT EXISTS equipment_id INTEGER,\n  ADD COLUMN IF NOT EXISTS site_id INTEGER,\n  ADD COLUMN IF NOT EXISTS service_plan_id INTEGER,\n  ADD COLUMN IF NOT EXISTS product_id INTEGER,\n  ADD COLUMN IF NOT EXISTS status_id INTEGER,\n  ADD COLUMN IF NOT EXISTS acres NUMERIC(10, 2),\n  ADD COLUMN IF NOT EXISTS carrier_volume NUMERIC(10, 2),\n  ADD COLUMN IF NOT EXISTS carrier_unit VARCHAR(50) DEFAULT 'GPA',\n  ADD COLUMN IF NOT EXISTS num_loads INTEGER,\n  ADD COLUMN IF NOT EXISTS zones_to_treat JSONB,\n  ADD COLUMN IF NOT EXISTS weather_conditions VARCHAR(255),\n  ADD COLUMN IF NOT EXISTS temperature_f NUMERIC(5, 2),\n  ADD COLUMN IF NOT EXISTS wind_speed_mph NUMERIC(5, 2),\n  ADD COLUMN IF NOT EXISTS wind_direction VARCHAR(10);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3LAnvSXMR8umuBe.7ce7968d7659 --database dmpQCHmFJYDLuYDsnydHYb --execute ALTER TABLE jobs \n  ADD COLUMN IF NOT EXISTS equipment_id INTEGER,\n  ADD COLUMN IF NOT EXISTS site_id INTEGER,\n  ADD COLUMN IF NOT EXISTS service_plan_id INTEGER,\n  ADD COLUMN IF NOT EXISTS product_id INTEGER,\n  ADD COLUMN IF NOT EXISTS status_id INTEGER,\n  ADD COLUMN IF NOT EXISTS acres NUMERIC(10, 2),\n  ADD COLUMN IF NOT EXISTS carrier_volume NUMERIC(10, 2),\n  ADD COLUMN IF NOT EXISTS carrier_unit VARCHAR(50) DEFAULT 'GPA',\n  ADD COLUMN IF NOT EXISTS num_loads INTEGER,\n  ADD COLUMN IF NOT EXISTS zones_to_treat JSONB,\n  ADD COLUMN IF NOT EXISTS weather_conditions VARCHAR(255),\n  ADD COLUMN IF NOT EXISTS temperature_f NUMERIC(5, 2),\n  ADD COLUMN IF NOT EXISTS wind_speed_mph NUMERIC(5, 2),\n  ADD COLUMN IF NOT EXISTS wind_direction VARCHAR(10);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 11 column 48 near \"JSONB,",
+    "  ADD COLUMN IF NOT EXISTS weather_conditions VARCHAR(255),",
+    "  ADD COLUMN IF NOT EXISTS temperature_f NUMERIC(5, 2),",
+    "  ADD COLUMN IF NOT EXISTS wind_speed_mph NUMERIC(5, 2),",
+    "  ADD COLUMN IF NOT EXISTS wind_direction VARCHAR(10)\""
+  ]
+}
