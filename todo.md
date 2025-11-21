@@ -681,6 +681,22 @@ Features:
 - [x] Fix Dockerfile production stage to copy node_modules from builder instead of reinstalling
 - [x] Remove `RUN pnpm install --frozen-lockfile --prod` from production stage
 - [x] Add `COPY --from=builder /app/node_modules ./node_modules` to production stage
-- [ ] Push fix to GitHub
-- [ ] Create checkpoint
-- [ ] Test deployment
+- [x] Push fix to GitHub
+- [x] Create checkpoint
+- [ ] Test deployment (user to verify)
+
+## Deep Docker Build Investigation - Round 2
+- [ ] Check vite.config.ts for build configuration issues
+- [ ] Verify all build dependencies are in dependencies (not devDependencies)
+- [ ] Check if esbuild configuration is correct
+- [ ] Verify package.json build script works in clean environment
+- [ ] Check for missing files that build expects
+- [ ] Test if Dockerfile COPY commands are copying all necessary files
+- [ ] Investigate if .dockerignore is excluding required files
+- [ ] Check for environment-specific build issues
+
+## Try Manus Auto-Generated Dockerfile
+- [x] Remove custom Dockerfile
+- [x] Remove .dockerignore
+- [x] Let Manus platform auto-generate deployment configuration
+- [ ] Push and test deployment
