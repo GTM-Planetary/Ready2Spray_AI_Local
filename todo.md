@@ -326,3 +326,25 @@
 - [x] Create .dockerignore to optimize build
 - [x] Push Dockerfile to GitHub and create checkpoint
 - [ ] Verify deployment succeeds (user to test)
+
+## Docker Deployment Verification & Testing
+- [ ] Verify Dockerfile structure matches requirements (multi-stage build with builder and production stages)
+- [ ] Confirm build stage has all dependencies: python3, make, g++ for bcrypt compilation
+- [ ] Verify production stage uses same base image as builder (node:20-alpine) to ensure bcrypt compatibility
+- [ ] Check that dist/ directory structure is correct after build:
+  - [ ] dist/index.js exists (server bundle)
+  - [ ] dist/public/ exists (frontend static files)
+  - [ ] dist/public/index.html exists
+  - [ ] dist/public/assets/ exists
+- [ ] Verify server expects static files at dist/public/ (relative to project root)
+- [ ] Confirm all environment variables from Manus secrets are properly injected at runtime
+- [ ] Test port auto-detection: Server uses PORT env var or defaults to 3000
+- [ ] Verify health check endpoint: GET http://localhost:{PORT}/ returns 200
+- [ ] After deployment, verify app starts without errors
+- [ ] Test frontend serves at production URL
+- [ ] Test API responds at production URL/api/trpc
+- [ ] Check server logs for "Server running on http://localhost:3000/" message
+- [ ] Verify database connection works in production
+- [ ] Test authentication flow in production environment
+- [ ] Verify all static assets load correctly (no 404s)
+- [ ] Test job creation and data persistence in production
