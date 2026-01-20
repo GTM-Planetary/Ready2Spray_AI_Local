@@ -162,7 +162,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
       <Card>
         <CardContent className="p-0">
           <MapView
-            className="w-full h-[400px] rounded-lg"
+            className="w-full h-[250px] sm:h-[300px] md:h-[400px] rounded-lg"
             initialCenter={
               selectedLocation || { lat: 39.8283, lng: -98.5795 } // Center of US
             }

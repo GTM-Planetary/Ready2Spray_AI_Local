@@ -11,6 +11,8 @@ import { z } from "zod";
 import { updateOrganizationSchema, createSiteSchema, updateSiteSchema, deleteSiteSchema, createEquipmentSchema, updateEquipmentSchema, deleteEquipmentSchema } from "./validation";
 import { getCurrentWeather, getWeatherForecast, evaluateSprayConditions, getHistoricalWeather } from "./weather";
 
+import { isValidEpaNumber } from "../shared/validation";
+
 export const appRouter = router({
   // Waitlist router (public)
   waitlist: router({
@@ -692,7 +694,9 @@ If a field is not visible in the screenshot, set it to an empty string. Be preci
     create: protectedProcedure
       .input(z.object({
         productName: z.string(),
-        epaNumber: z.string(),
+        epaNumber: z.string().refine((val) => isValidEpaNumber(val), {
+          message: "Invalid EPA Registration Number format. Expected: XXXXX-XXX",
+        }),
         registrant: z.string().optional(),
         activeIngredients: z.string().optional(),
         reEntryInterval: z.string().optional(),

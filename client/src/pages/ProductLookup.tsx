@@ -9,6 +9,7 @@ import { ArrowLeft, Save, AlertCircle, ExternalLink, Upload, Loader2, X, Sparkle
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import { isValidEpaNumber } from "@shared/validation";
 
 export default function ProductLookup() {
   const [, navigate] = useLocation();
@@ -233,6 +234,11 @@ export default function ProductLookup() {
     // Validate required fields
     if (!productData.productName || !productData.epaNumber) {
       toast.error("Please fill in Product Name and EPA Registration Number");
+      return;
+    }
+
+    if (!isValidEpaNumber(productData.epaNumber)) {
+      toast.error("Invalid EPA Registration Number format. Expected: XXXXX-XXX or XXXXX-XXX-XXXXX");
       return;
     }
 
