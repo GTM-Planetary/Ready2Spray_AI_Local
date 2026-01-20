@@ -1,4 +1,19 @@
+/**
+ * LLM Service - Multi-Provider AI Integration
+ *
+ * Ready2Spray Aerial Application Platform
+ *
+ * Supports multiple LLM providers:
+ * - Ollama (local models for testing custom aerial application models)
+ * - Anthropic (Claude for production)
+ * - Forge (internal inference service)
+ *
+ * Set LLM_PROVIDER env var to switch: "ollama" | "anthropic" | "forge"
+ */
+
 import { ENV } from "./env";
+import { invokeOllama, checkOllamaHealth, listOllamaModels } from "./ollama";
+import Anthropic from "@anthropic-ai/sdk";
 
 export type Role = "system" | "user" | "assistant" | "tool" | "function";
 

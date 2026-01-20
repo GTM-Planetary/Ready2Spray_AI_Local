@@ -9,4 +9,12 @@ export const ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   isDevAuth: process.env.VITE_DEV_AUTH === "true",
   invitationCode: process.env.INVITATION_CODE ?? "BETA2024",
+  // LLM Provider Configuration
+  llmProvider: (process.env.LLM_PROVIDER ?? "anthropic") as "ollama" | "forge" | "anthropic",
+  // Ollama Configuration (for local model testing)
+  ollamaUrl: process.env.OLLAMA_URL ?? "http://localhost:11434",
+  ollamaModel: process.env.OLLAMA_MODEL ?? "llama3.2",
+  // Anthropic Configuration
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? "",
+  anthropicModel: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514",
 };
