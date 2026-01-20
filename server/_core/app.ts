@@ -7,6 +7,7 @@ import { corsMiddleware } from "@/server_core/cors";
 import { logApiRequest } from "@/server_core/webhookApi";
 import { setupVite } from "@/server_core/vite";
 import rateLimit from 'express-rate-limit';
+import { apiLogger } from '../logger';
 
 // General rate limiter - 100 requests per 15 minutes
 const generalLimiter = rateLimit({
@@ -33,6 +34,20 @@ export async function createApp() {
   // Apply rate limiting middleware
   app.use(generalLimiter);
   app.use('/api/trpc/auth', authLimiter);
+
+  // Request logging middleware
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      apiLogger.info({
+        method: req.method,
+        url: req.url,
+        status: res.statusCode,
+        duration: Date.now() - start,
+      });
+    });
+    next();
+  });
 
   // Health check endpoint for monitoring
   app.get('/health', (req, res) => {
