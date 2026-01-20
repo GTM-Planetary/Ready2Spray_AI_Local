@@ -6,17 +6,95 @@
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
 
+/**
+ * Email configuration with validation
+ */
+interface EmailConfig {
+  apiKey: string;
+  domain: string;
+  fromEmail: string;
+  isConfigured: boolean;
+}
+
+function getEmailConfig(): EmailConfig {
+  const apiKey = process.env.MAILGUN_API_KEY;
+  const domain = process.env.MAILGUN_DOMAIN;
+  const fromEmail = process.env.MAILGUN_FROM_EMAIL || process.env.FROM_EMAIL || `noreply@${domain || 'example.com'}`;
+
+  const isConfigured = !!(apiKey && domain);
+
+  if (!isConfigured && process.env.NODE_ENV === 'production') {
+    console.error(
+      '❌ Email not configured! Set MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables.'
+    );
+  }
+
+  return {
+    apiKey: apiKey || '',
+    domain: domain || '',
+    fromEmail,
+    isConfigured,
+  };
+}
+
+const emailConfig = getEmailConfig();
+
 const mailgun = new Mailgun(formData);
 
-// Initialize Mailgun client
-const mg = mailgun.client({
-  username: 'api',
-  key: process.env.MAILGUN_API_KEY || '',
-  url: process.env.MAILGUN_BASE_URL || 'https://api.mailgun.net',
-});
+// Initialize Mailgun client only if configured
+const mg = emailConfig.isConfigured
+  ? mailgun.client({
+      username: 'api',
+      key: emailConfig.apiKey,
+      url: process.env.MAILGUN_BASE_URL || 'https://api.mailgun.net',
+    })
+  : null;
 
-const DOMAIN = process.env.MAILGUN_DOMAIN || '';
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@example.com';
+const DOMAIN = emailConfig.domain;
+const FROM_EMAIL = emailConfig.fromEmail;
+
+/**
+ * Check if email is properly configured
+ */
+export function isEmailConfigured(): boolean {
+  return emailConfig.isConfigured;
+}
+
+/**
+ * Helper to send email or log in dev mode
+ */
+async function sendMailgunEmail(params: {
+  to: string[];
+  subject: string;
+  html: string;
+  text: string;
+}): Promise<{ success: boolean; messageId?: string; error?: any }> {
+  const { to, subject, html, text } = params;
+
+  // Development mode fallback - log instead of sending
+  if (!emailConfig.isConfigured) {
+    console.log('📧 [DEV MODE] Email would be sent:');
+    console.log(`   To: ${to.join(', ')}`);
+    console.log(`   Subject: ${subject}`);
+    console.log(`   Body preview: ${text.substring(0, 150)}...`);
+    return { success: true, messageId: 'dev-mode-no-send' };
+  }
+
+  try {
+    const result = await mg!.messages.create(DOMAIN, {
+      from: FROM_EMAIL,
+      to,
+      subject,
+      html,
+      text,
+    });
+
+    return { success: true, messageId: result.id };
+  } catch (error) {
+    console.error('[Email] Failed to send:', error);
+    return { success: false, error };
+  }
+}
 
 /**
  * Send service reminder email to customer
@@ -116,7 +194,7 @@ export async function sendServiceReminderEmail(params: {
   `;
 
   try {
-    const result = await mg.messages.create(DOMAIN, {
+    const result = await mg!.messages.create(DOMAIN, {
       from: FROM_EMAIL,
       to: [customerEmail],
       subject: `Service Reminder: ${jobTitle} - Tomorrow`,
@@ -242,7 +320,7 @@ export async function sendJobCompletionEmail(params: {
   `;
 
   try {
-    const result = await mg.messages.create(DOMAIN, {
+    const result = await mg!.messages.create(DOMAIN, {
       from: FROM_EMAIL,
       to: [customerEmail],
       subject: `Service Complete: ${jobTitle}`,
@@ -263,7 +341,7 @@ export async function sendJobCompletionEmail(params: {
  */
 export async function sendTestEmail(toEmail: string) {
   try {
-    const result = await mg.messages.create(DOMAIN, {
+    const result = await mg!.messages.create(DOMAIN, {
       from: FROM_EMAIL,
       to: [toEmail],
       subject: 'Ready2Spray Email Service - Test',
@@ -340,7 +418,7 @@ export async function sendTeamInvitationEmail(params: {
   `;
 
   try {
-    const result = await mg.messages.create(DOMAIN, {
+    const result = await mg!.messages.create(DOMAIN, {
       from: FROM_EMAIL,
       to: [inviteeEmail],
       subject: `You've been invited to join ${organizationName} on Ready2Spray`,
@@ -418,7 +496,7 @@ export async function sendTeamMemberJoinedNotification(params: {
   `;
 
   try {
-    const result = await mg.messages.create(DOMAIN, {
+    const result = await mg!.messages.create(DOMAIN, {
       from: FROM_EMAIL,
       to: [ownerEmail],
       subject: `${memberName} joined ${organizationName}`,

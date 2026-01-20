@@ -9,10 +9,14 @@ build/
 
 # Environment variables
 .env
+.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+**/.env
+**/.env.*
+shared/.env
 
 # IDE and editor files
 .vscode/
@@ -105,3 +109,10 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+.aider*
+
+# Playwright
+playwright-report/
+playwright/.cache/
+e2e/.auth/
+test-results/

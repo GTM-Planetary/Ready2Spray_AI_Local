@@ -1,4 +1,4 @@
-import { boolean, integer, json, numeric, pgEnum, pgTable, text, timestamp, varchar, date, time, real } from "drizzle-orm/pg-core";
+import { boolean, integer, json, numeric, pgEnum, pgTable, text, timestamp, varchar, date, time, real, index } from "drizzle-orm/pg-core";
 
 /**
  * Core user table backing auth flow.
@@ -62,7 +62,10 @@ export const users = pgTable("users", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
-});
+}, (table) => ({
+  emailIdx: index("users_email_idx").on(table.email),
+  roleIdx: index("users_role_idx").on(table.role),
+}));
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -87,7 +90,15 @@ export const jobsV2 = pgTable("jobs_v2", {
   productId: integer("product_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("jobs_v2_org_id_idx").on(table.orgId),
+  customerIdIdx: index("jobs_v2_customer_id_idx").on(table.customerId),
+  statusIdx: index("jobs_v2_status_idx").on(table.status),
+  scheduledStartIdx: index("jobs_v2_scheduled_start_idx").on(table.scheduledStart),
+  personnelIdIdx: index("jobs_v2_personnel_id_idx").on(table.personnelId),
+  orgStatusIdx: index("jobs_v2_org_status_idx").on(table.orgId, table.status),
+  orgScheduledIdx: index("jobs_v2_org_scheduled_idx").on(table.orgId, table.scheduledStart),
+}));
 
 export type JobV2 = typeof jobsV2.$inferSelect;
 export type InsertJobV2 = typeof jobsV2.$inferInsert;
@@ -121,7 +132,10 @@ export const organizations = pgTable("organizations", {
   featuresEnabled: json("features_enabled"), // ['service_plans', 'zones', 'load_sheets', 'flight_board']
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  ownerIdIdx: index("organizations_owner_id_idx").on(table.ownerId),
+  subscriptionStatusIdx: index("organizations_subscription_status_idx").on(table.subscriptionStatus),
+}));
 
 export type Organization = typeof organizations.$inferSelect;
 export type InsertOrganization = typeof organizations.$inferInsert;
@@ -140,7 +154,11 @@ export const customers = pgTable("customers", {
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("customers_org_id_idx").on(table.orgId),
+  emailIdx: index("customers_email_idx").on(table.email),
+  nameIdx: index("customers_name_idx").on(table.name),
+}));
 
 export type Customer = typeof customers.$inferSelect;
 export type InsertCustomer = typeof customers.$inferInsert;
@@ -174,7 +192,11 @@ export const sites = pgTable("sites", {
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("sites_org_id_idx").on(table.orgId),
+  customerIdIdx: index("sites_customer_id_idx").on(table.customerId),
+  siteTypeIdx: index("sites_site_type_idx").on(table.siteType),
+}));
 
 export type Site = typeof sites.$inferSelect;
 export type InsertSite = typeof sites.$inferInsert;
@@ -188,7 +210,9 @@ export const zones = pgTable("zones", {
   description: text("description"),
   specialInstructions: text("special_instructions"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  siteIdIdx: index("zones_site_id_idx").on(table.siteId),
+}));
 
 export type Zone = typeof zones.$inferSelect;
 export type InsertZone = typeof zones.$inferInsert;
@@ -217,7 +241,11 @@ export const equipment = pgTable("equipment", {
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("equipment_org_id_idx").on(table.orgId),
+  equipmentTypeIdx: index("equipment_type_idx").on(table.equipmentType),
+  statusIdx: index("equipment_status_idx").on(table.status),
+}));
 
 export type Equipment = typeof equipment.$inferSelect;
 export type InsertEquipment = typeof equipment.$inferInsert;
@@ -235,7 +263,11 @@ export const personnel = pgTable("personnel", {
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("personnel_org_id_idx").on(table.orgId),
+  roleIdx: index("personnel_role_idx").on(table.role),
+  statusIdx: index("personnel_status_idx").on(table.status),
+}));
 
 export type Personnel = typeof personnel.$inferSelect;
 export type InsertPersonnel = typeof personnel.$inferInsert;
@@ -251,7 +283,9 @@ export const jobStatuses = pgTable("job_statuses", {
   isDefault: boolean("is_default").default(false).notNull(), // Default status for new jobs
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("job_statuses_org_id_idx").on(table.orgId),
+}));
 
 export type JobStatus = typeof jobStatuses.$inferSelect;
 export type InsertJobStatus = typeof jobStatuses.$inferInsert;
@@ -265,7 +299,10 @@ export const jobStatusHistory = pgTable("job_status_history", {
   changedByUserId: integer("changed_by_user_id").notNull().references(() => users.id),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  jobIdIdx: index("job_status_history_job_id_idx").on(table.jobId),
+  createdAtIdx: index("job_status_history_created_at_idx").on(table.createdAt),
+}));
 
 export type JobStatusHistory = typeof jobStatusHistory.$inferSelect;
 export type InsertJobStatusHistory = typeof jobStatusHistory.$inferInsert;
@@ -303,7 +340,11 @@ export const productsNew = pgTable("products_new", {
   // Metadata
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("products_new_org_id_idx").on(table.orgId),
+  epaRegNumberIdx: index("products_new_epa_reg_number_idx").on(table.epaRegNumber),
+  productTypeIdx: index("products_new_product_type_idx").on(table.productType),
+}));
 
 export type ProductNew = typeof productsNew.$inferSelect;
 export type InsertProductNew = typeof productsNew.$inferInsert;
@@ -335,7 +376,9 @@ export const productUse = pgTable("product_use", {
   // Metadata
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  productIdIdx: index("product_use_product_id_idx").on(table.productId),
+}));
 
 export type ProductUse = typeof productUse.$inferSelect;
 export type InsertProductUse = typeof productUse.$inferInsert;
@@ -366,7 +409,12 @@ export const servicePlans = pgTable("service_plans", {
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("service_plans_org_id_idx").on(table.orgId),
+  customerIdIdx: index("service_plans_customer_id_idx").on(table.customerId),
+  statusIdx: index("service_plans_status_idx").on(table.status),
+  nextServiceDateIdx: index("service_plans_next_service_date_idx").on(table.nextServiceDate),
+}));
 
 export type ServicePlan = typeof servicePlans.$inferSelect;
 export type InsertServicePlan = typeof servicePlans.$inferInsert;
@@ -425,7 +473,16 @@ export const jobs = pgTable("jobs", {
   windDirection: varchar("wind_direction", { length: 10 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("jobs_org_id_idx").on(table.orgId),
+  customerIdIdx: index("jobs_customer_id_idx").on(table.customerId),
+  statusIdIdx: index("jobs_status_id_idx").on(table.statusId),
+  scheduledStartIdx: index("jobs_scheduled_start_idx").on(table.scheduledStart),
+  assignedPersonnelIdIdx: index("jobs_assigned_personnel_id_idx").on(table.assignedPersonnelId),
+  siteIdIdx: index("jobs_site_id_idx").on(table.siteId),
+  orgStatusIdx: index("jobs_org_status_idx").on(table.orgId, table.statusId),
+  orgScheduledIdx: index("jobs_org_scheduled_idx").on(table.orgId, table.scheduledStart),
+}));
 
 export type Job = typeof jobs.$inferSelect;
 export type InsertJob = typeof jobs.$inferInsert;
@@ -472,7 +529,12 @@ export const applications = pgTable("applications", {
   // Metadata
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("applications_org_id_idx").on(table.orgId),
+  jobIdIdx: index("applications_job_id_idx").on(table.jobId),
+  siteIdIdx: index("applications_site_id_idx").on(table.siteId),
+  applicationDateIdx: index("applications_application_date_idx").on(table.applicationDate),
+}));
 
 export type Application = typeof applications.$inferSelect;
 export type InsertApplication = typeof applications.$inferInsert;
@@ -490,7 +552,10 @@ export const products = pgTable("products", {
   safetyNotes: text("safety_notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("products_org_id_idx").on(table.orgId),
+  epaNumberIdx: index("products_epa_number_idx").on(table.epaNumber),
+}));
 
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = typeof products.$inferInsert;
@@ -503,7 +568,10 @@ export const aiConversations = pgTable("ai_conversations", {
   title: text("title"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("ai_conversations_org_id_idx").on(table.orgId),
+  userIdIdx: index("ai_conversations_user_id_idx").on(table.userId),
+}));
 
 export type AiConversation = typeof aiConversations.$inferSelect;
 export type InsertAiConversation = typeof aiConversations.$inferInsert;
@@ -515,7 +583,9 @@ export const aiMessages = pgTable("ai_messages", {
   role: messageRoleEnum("role").notNull(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  conversationIdIdx: index("ai_messages_conversation_id_idx").on(table.conversationId),
+}));
 
 export type AiMessage = typeof aiMessages.$inferSelect;
 export type InsertAiMessage = typeof aiMessages.$inferInsert;
@@ -532,7 +602,11 @@ export const aiUsage = pgTable("ai_usage", {
   totalTokens: integer("total_tokens").notNull(),
   cost: varchar("cost", { length: 20 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("ai_usage_org_id_idx").on(table.orgId),
+  userIdIdx: index("ai_usage_user_id_idx").on(table.userId),
+  createdAtIdx: index("ai_usage_created_at_idx").on(table.createdAt),
+}));
 
 export type AiUsage = typeof aiUsage.$inferSelect;
 export type InsertAiUsage = typeof aiUsage.$inferInsert;
@@ -551,7 +625,10 @@ export const maps = pgTable("maps", {
   publicUrl: text("public_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  orgIdIdx: index("maps_org_id_idx").on(table.orgId),
+  jobIdIdx: index("maps_job_id_idx").on(table.jobId),
+}));
 
 export type Map = typeof maps.$inferSelect;
 export type InsertMap = typeof maps.$inferInsert;
@@ -589,7 +666,9 @@ export const integrationConnections = pgTable("integration_connections", {
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  organizationIdIdx: index("integration_connections_organization_id_idx").on(table.organizationId),
+}));
 
 export type IntegrationConnection = typeof integrationConnections.$inferSelect;
 export type InsertIntegrationConnection = typeof integrationConnections.$inferInsert;
@@ -603,7 +682,9 @@ export const integrationFieldMappings = pgTable("integration_field_mappings", {
   isEnabled: boolean("is_enabled").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  connectionIdIdx: index("integration_field_mappings_connection_id_idx").on(table.connectionId),
+}));
 
 export type IntegrationFieldMapping = typeof integrationFieldMappings.$inferSelect;
 export type InsertIntegrationFieldMapping = typeof integrationFieldMappings.$inferInsert;
@@ -621,7 +702,10 @@ export const integrationSyncLogs = pgTable("integration_sync_logs", {
   requestData: json("request_data"),
   responseData: json("response_data"),
   syncedAt: timestamp("synced_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  connectionIdIdx: index("integration_sync_logs_connection_id_idx").on(table.connectionId),
+  syncedAtIdx: index("integration_sync_logs_synced_at_idx").on(table.syncedAt),
+}));
 
 export type IntegrationSyncLog = typeof integrationSyncLogs.$inferSelect;
 export type InsertIntegrationSyncLog = typeof integrationSyncLogs.$inferInsert;
@@ -635,7 +719,10 @@ export const integrationEntityMappings = pgTable("integration_entity_mappings", 
   lastSyncedAt: timestamp("last_synced_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  connectionIdIdx: index("integration_entity_mappings_connection_id_idx").on(table.connectionId),
+  externalIdIdx: index("integration_entity_mappings_external_id_idx").on(table.externalId),
+}));
 
 export type IntegrationEntityMapping = typeof integrationEntityMappings.$inferSelect;
 export type InsertIntegrationEntityMapping = typeof integrationEntityMappings.$inferInsert;
@@ -662,7 +749,11 @@ export const maintenanceTasks = pgTable("maintenance_tasks", {
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  equipmentIdIdx: index("maintenance_tasks_equipment_id_idx").on(table.equipmentId),
+  statusIdx: index("maintenance_tasks_status_idx").on(table.status),
+  nextDueDateIdx: index("maintenance_tasks_next_due_date_idx").on(table.nextDueDate),
+}));
 
 export type MaintenanceTask = typeof maintenanceTasks.$inferSelect;
 export type InsertMaintenanceTask = typeof maintenanceTasks.$inferInsert;
@@ -684,7 +775,13 @@ export const auditLogs = pgTable("audit_logs", {
   userAgent: text("user_agent"),
   metadata: json("metadata"), // Additional context data
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  organizationIdIdx: index("audit_logs_organization_id_idx").on(table.organizationId),
+  userIdIdx: index("audit_logs_user_id_idx").on(table.userId),
+  createdAtIdx: index("audit_logs_created_at_idx").on(table.createdAt),
+  actionIdx: index("audit_logs_action_idx").on(table.action),
+  orgCreatedIdx: index("audit_logs_org_created_idx").on(table.organizationId, table.createdAt),
+}));
 
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
@@ -754,7 +851,12 @@ export const productsComplete = pgTable("products_complete", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   createdBy: integer("created_by").references(() => users.id),
-});
+}, (table) => ({
+  orgIdIdx: index("products_complete_org_id_idx").on(table.orgId),
+  nicknameIdx: index("products_complete_nickname_idx").on(table.nickname),
+  epaNumberIdx: index("products_complete_epa_number_idx").on(table.epaNumber),
+  statusIdx: index("products_complete_status_idx").on(table.status),
+}));
 
 export type ProductComplete = typeof productsComplete.$inferSelect;
 export type InsertProductComplete = typeof productsComplete.$inferInsert;
@@ -779,7 +881,10 @@ export const apiKeys = pgTable("api_keys", {
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   createdBy: integer("created_by").notNull().references(() => users.id),
-});
+}, (table) => ({
+  organizationIdIdx: index("api_keys_organization_id_idx").on(table.organizationId),
+  keyPrefixIdx: index("api_keys_key_prefix_idx").on(table.keyPrefix),
+}));
 
 export type ApiKey = typeof apiKeys.$inferSelect;
 export type InsertApiKey = typeof apiKeys.$inferInsert;
@@ -798,7 +903,9 @@ export const jobShares = pgTable("job_shares", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   createdBy: integer("created_by").notNull().references(() => users.id),
   lastAccessedAt: timestamp("last_accessed_at"),
-});
+}, (table) => ({
+  jobIdIdx: index("job_shares_job_id_idx").on(table.jobId),
+}));
 
 export type JobShare = typeof jobShares.$inferSelect;
 export type InsertJobShare = typeof jobShares.$inferInsert;
@@ -817,7 +924,10 @@ export const apiUsageLogs = pgTable("api_usage_logs", {
   responseBody: json("response_body"),
   errorMessage: text("error_message"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  apiKeyIdIdx: index("api_usage_logs_api_key_id_idx").on(table.apiKeyId),
+  createdAtIdx: index("api_usage_logs_created_at_idx").on(table.createdAt),
+}));
 
 export type ApiUsageLog = typeof apiUsageLogs.$inferSelect;
 export type InsertApiUsageLog = typeof apiUsageLogs.$inferInsert;
@@ -836,7 +946,10 @@ export const organizationMembers = pgTable("organization_members", {
   joinedAt: timestamp("joined_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  organizationIdIdx: index("organization_members_organization_id_idx").on(table.organizationId),
+  userIdIdx: index("organization_members_user_id_idx").on(table.userId),
+}));
 
 export type OrganizationMember = typeof organizationMembers.$inferSelect;
 export type InsertOrganizationMember = typeof organizationMembers.$inferInsert;
@@ -854,7 +967,11 @@ export const organizationInvitations = pgTable("organization_invitations", {
   acceptedAt: timestamp("accepted_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  organizationIdIdx: index("organization_invitations_organization_id_idx").on(table.organizationId),
+  emailIdx: index("organization_invitations_email_idx").on(table.email),
+  statusIdx: index("organization_invitations_status_idx").on(table.status),
+}));
 
 export type OrganizationInvitation = typeof organizationInvitations.$inferSelect;
 export type InsertOrganizationInvitation = typeof organizationInvitations.$inferInsert;
