@@ -48,6 +48,3 @@ Thumbs.db
 
 # Aider/AI files
 .aider*
-
-# Patches (pnpm handles these during install)
-patches/

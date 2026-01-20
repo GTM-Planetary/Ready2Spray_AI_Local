@@ -1,0 +1,59 @@
+version: '3.8'
+
+# Development/Testing Docker Compose
+# Usage: docker compose -f docker-compose.dev.yml up --build
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ready2spray
+      POSTGRES_PASSWORD: devpassword123
+      POSTGRES_DB: ready2spray
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ready2spray"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Ready2Spray Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9999:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://ready2spray:devpassword123@db:5432/ready2spray
+      - JWT_SECRET=dev-jwt-secret-for-testing-minimum-32-chars
+      - OWNER_EMAIL=test@example.com
+      - OWNER_NAME=Test User
+      - OWNER_OPEN_ID=test-open-id-123
+      # Stripe test keys (use your test keys or leave empty)
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+      - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY:-}
+      # Optional services (leave empty for UI testing)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY:-}
+      - MAILGUN_DOMAIN=${MAILGUN_DOMAIN:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - VITE_APP_TITLE=Ready2Spray AI (Dev)
+      - VITE_APP_ID=ready2spray-dev
+      - VITE_OAUTH_PORTAL_URL=${VITE_OAUTH_PORTAL_URL:-}
+      - INVITATION_CODE=DEVTEST123
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

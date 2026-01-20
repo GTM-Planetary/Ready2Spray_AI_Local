@@ -36,6 +36,10 @@ import TeamManagement from "./pages/TeamManagement";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import Weather from "./pages/Weather";
 
+import AISettings from "./pages/AISettings";
+import DriftCalculator from "./pages/DriftCalculator";
+import PreFlightChecklist from "./pages/PreFlightChecklist";
+
 // Check if we're on the app subdomain
 const isAppSubdomain = () => {
   const hostname = window.location.hostname;
@@ -96,6 +100,14 @@ function Router() {
         {() => (
           <DashboardLayout>
             <Weather />
+          </DashboardLayout>
+        )}
+      </Route>
+
+      <Route path="/tools/drift-calculator">
+        {() => (
+          <DashboardLayout>
+            <DriftCalculator />
           </DashboardLayout>
         )}
       </Route>
@@ -210,6 +222,16 @@ function Router() {
           <DashboardLayout>
             <ProtectedRoute requiredPermission="view_settings">
               <Settings />
+            </ProtectedRoute>
+          </DashboardLayout>
+        )}
+      </Route>
+
+      <Route path="/settings/ai">
+        {() => (
+          <DashboardLayout>
+            <ProtectedRoute requiredPermission="view_settings">
+              <AISettings />
             </ProtectedRoute>
           </DashboardLayout>
         )}

@@ -6,15 +6,31 @@ import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
+// Get database connection string from environment variables
+function getDatabaseUrl(): string | null {
+  // Prefer explicit DATABASE_URL
+  const databaseUrl = process.env.DATABASE_URL || process.env.SUPABASE_DATABASE_URL;
+  if (databaseUrl) {
+    return databaseUrl;
+  }
+
+  // Fallback to component-based construction (legacy support)
+  const password = process.env.R2S_Supabase || process.env.DB_PASSWORD;
+  const host = process.env.DB_HOST;
+  const port = process.env.DB_PORT || '5432';
+  const database = process.env.DB_NAME || 'postgres';
+  const user = process.env.DB_USER || 'postgres';
+
+  if (password && host) {
+    return `postgresql://${user}:${encodeURIComponent(password)}@${host}:${port}/${database}`;
+  }
+
+  return null;
+}
+
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  // Build Supabase connection string with password from secret (using Session Pooler for IPv4 compatibility)
-  const supabasePassword = process.env.R2S_Supabase;
-  const supabaseUrl = supabasePassword 
-    ? `postgresql://postgres.yqimcvatzaldidmqmvtr:${encodeURIComponent(supabasePassword)}@aws-1-us-west-1.pooler.supabase.com:5432/postgres`
-    : null;
-  
-  const connectionString = supabaseUrl || process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+  const connectionString = getDatabaseUrl();
   
   if (!_db && connectionString) {
     try {
@@ -1751,3 +1767,116 @@ export async function getPersonnelById(id: number) {
   const result = await db.select().from(personnel).where(eq(personnel.id, id)).limit(1);
   return result[0];
 }
+
+// ==================== Organization AI Config ====================
+
+export async function getOrganizationAiConfig(orgId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { organizationAiConfig } = await import("../drizzle/schema");
+  const result = await db.select().from(organizationAiConfig).where(eq(organizationAiConfig.organizationId, orgId)).limit(1);
+  return result[0] || null;
+}
+
+export async function updateOrganizationAiConfig(orgId: number, data: {
+  provider?: "ollama" | "anthropic" | "forge";
+  chatModel?: string;
+  analysisModel?: string;
+  complianceModel?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { organizationAiConfig } = await import("../drizzle/schema");
+  
+  // Check if config exists
+  const existing = await getOrganizationAiConfig(orgId);
+  
+  if (existing) {
+    const result = await db.update(organizationAiConfig)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(organizationAiConfig.id, existing.id))
+      .returning();
+    return result[0];
+  } else {
+    const result = await db.insert(organizationAiConfig).values({
+      organizationId: orgId,
+      provider: data.provider || "anthropic",
+      chatModel: data.chatModel,
+      analysisModel: data.analysisModel,
+      complianceModel: data.complianceModel,
+    }).returning();
+    return result[0];
+  }
+}
+
+// ==================== Pre-Flight Checklists ====================
+
+export async function createPreFlightChecklist(data: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { preFlightChecklists } = await import("../drizzle/schema");
+  const result = await db.insert(preFlightChecklists).values(data).returning();
+  return result[0];
+}
+
+export async function getPreFlightChecklistsByJobId(jobId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { preFlightChecklists, personnel, equipment } = await import("../drizzle/schema");
+  const { desc } = await import("drizzle-orm");
+  
+  return await db
+    .select({
+      id: preFlightChecklists.id,
+      jobId: preFlightChecklists.jobId,
+      pilotId: preFlightChecklists.pilotId,
+      aircraftId: preFlightChecklists.aircraftId,
+      checklistData: preFlightChecklists.checklistData,
+      weatherSnapshot: preFlightChecklists.weatherSnapshot,
+      signedBy: preFlightChecklists.signedBy,
+      signedAt: preFlightChecklists.signedAt,
+      createdAt: preFlightChecklists.createdAt,
+      pilotName: personnel.name,
+      aircraftName: equipment.name,
+    })
+    .from(preFlightChecklists)
+    .leftJoin(personnel, eq(preFlightChecklists.pilotId, personnel.id))
+    .leftJoin(equipment, eq(preFlightChecklists.aircraftId, equipment.id))
+    .where(eq(preFlightChecklists.jobId, jobId))
+    .orderBy(desc(preFlightChecklists.createdAt));
+}
+
+export async function getPreFlightChecklistById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { preFlightChecklists, personnel, equipment } = await import("../drizzle/schema");
+  
+  const result = await db
+    .select({
+      id: preFlightChecklists.id,
+      jobId: preFlightChecklists.jobId,
+      pilotId: preFlightChecklists.pilotId,
+      aircraftId: preFlightChecklists.aircraftId,
+      checklistData: preFlightChecklists.checklistData,
+      weatherSnapshot: preFlightChecklists.weatherSnapshot,
+      signedBy: preFlightChecklists.signedBy,
+      signedAt: preFlightChecklists.signedAt,
+      createdAt: preFlightChecklists.createdAt,
+      pilotName: personnel.name,
+      aircraftName: equipment.name,
+    })
+    .from(preFlightChecklists)
+    .leftJoin(personnel, eq(preFlightChecklists.pilotId, personnel.id))
+    .leftJoin(equipment, eq(preFlightChecklists.aircraftId, equipment.id))
+    .where(eq(preFlightChecklists.id, id))
+    .limit(1);
+    
+  return result[0] || null;
+}
+
+

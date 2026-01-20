@@ -22,7 +22,7 @@ import {
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { usePermissions, Permission } from "@/hooks/usePermissions";
-import { LayoutDashboard, LogOut, PanelLeft, Users, UserPlus, Briefcase, UserCheck, Package, MessageSquare, MapPin, Settings as SettingsIcon, Building2, Plane, CalendarDays, Wrench, BarChart3, CalendarCheck, Pill, Key, Cloud } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, UserPlus, Briefcase, UserCheck, Package, MessageSquare, MapPin, Settings as SettingsIcon, Building2, Plane, CalendarDays, Wrench, BarChart3, CalendarCheck, Pill, Key, Cloud, Brain, Wind } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -42,9 +42,11 @@ const menuItems: Array<{ icon: any; label: string; path: string; permission?: Pe
   { icon: Users, label: "Customers", path: "/customers", permission: "view_customers" },
   { icon: Pill, label: "Products", path: "/products", permission: "view_products" },
   { icon: Cloud, label: "Weather", path: "/weather", permission: "view_weather" },
+  { icon: Wind, label: "Drift Calculator", path: "/tools/drift-calculator", permission: "view_weather" },
   { icon: MessageSquare, label: "AI Chat", path: "/chat", permission: "view_ai_chat" },
   { icon: MapPin, label: "Maps", path: "/maps", permission: "view_maps" },
   { icon: UserPlus, label: "Team", path: "/team", permission: "manage_team" },
+  { icon: Brain, label: "AI Models", path: "/settings/ai", permission: "view_settings" },
   { icon: SettingsIcon, label: "Settings", path: "/settings", permission: "view_settings" },
 
 ];

@@ -3,6 +3,9 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { stripeRouter } from "./stripeRouter";
 import { teamRouter } from "./teamRouter";
+import { modelsRouter } from "./modelsRouter";
+import { driftRouter } from "./driftRouter";
+import { checklistRouter } from "./checklistRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { updateOrganizationSchema, createSiteSchema, updateSiteSchema, deleteSiteSchema, createEquipmentSchema, updateEquipmentSchema, deleteEquipmentSchema } from "./validation";
@@ -29,6 +32,9 @@ export const appRouter = router({
   system: systemRouter,
   stripe: stripeRouter,
   team: teamRouter,
+  models: modelsRouter,
+  drift: driftRouter,
+  checklist: checklistRouter,
   
   // Weather router
   weather: router({

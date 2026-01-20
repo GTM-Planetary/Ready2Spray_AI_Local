@@ -14,19 +14,19 @@ Then tell Aider: "Work through the task queue starting with the first unchecked 
 
 ## P0 - Critical (Must Complete First)
 
-- [x] **Task 1**: Secure shared/.env file
+- [ ] **Task 1**: Secure shared/.env file
   - File: `.ai-tasks/P0-critical/01-secure-shared-env.md`
   - Action: Update .gitignore, create .env.example
 
-- [x] **Task 2**: Create .env.example
+- [ ] **Task 2**: Create .env.example
   - File: `.ai-tasks/P0-critical/02-create-env-example.md`
   - Action: Create template env file with placeholder values
 
-- [x] **Task 3**: Fix hardcoded database connection
+- [ ] **Task 3**: Fix hardcoded database connection
   - File: `.ai-tasks/P0-critical/03-fix-hardcoded-db-connection.md`
   - Action: Modify `server/db.ts` to use DATABASE_URL env var
 
-- [x] **Task 4**: Create Dockerfile
+- [ ] **Task 4**: Create Dockerfile
   - File: `.ai-tasks/P0-critical/04-create-dockerfile.md`
   - Action: Create production Dockerfile
 

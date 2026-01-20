@@ -975,3 +975,39 @@ export const organizationInvitations = pgTable("organization_invitations", {
 
 export type OrganizationInvitation = typeof organizationInvitations.$inferSelect;
 export type InsertOrganizationInvitation = typeof organizationInvitations.$inferInsert;
+
+// Organization AI Configuration
+export const aiProviderEnum = pgEnum("ai_provider", ["ollama", "anthropic", "forge"]);
+
+export const organizationAiConfig = pgTable("organization_ai_config", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  organizationId: integer("organization_id").notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  provider: aiProviderEnum("provider").default("anthropic").notNull(),
+  chatModel: varchar("chat_model", { length: 100 }),
+  analysisModel: varchar("analysis_model", { length: 100 }),
+  complianceModel: varchar("compliance_model", { length: 100 }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  organizationIdIdx: index("organization_ai_config_organization_id_idx").on(table.organizationId),
+}));
+
+export type OrganizationAiConfig = typeof organizationAiConfig.$inferSelect;
+export type InsertOrganizationAiConfig = typeof organizationAiConfig.$inferInsert;
+
+// Pre-Flight Checklists
+export const preFlightChecklists = pgTable("pre_flight_checklists", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  jobId: integer("job_id").notNull().references(() => jobsV2.id, { onDelete: "cascade" }),
+  pilotId: integer("pilot_id").references(() => personnel.id),
+  aircraftId: integer("aircraft_id").references(() => equipment.id),
+  checklistData: json("checklist_data").notNull(),
+  weatherSnapshot: json("weather_snapshot"),
+  signedBy: varchar("signed_by", { length: 255 }),
+  signedAt: timestamp("signed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  jobIdIdx: index("pre_flight_checklists_job_id_idx").on(table.jobId),
+}));
+
+export type PreFlightChecklist = typeof preFlightChecklists.$inferSelect;
+export type InsertPreFlightChecklist = typeof preFlightChecklists.$inferInsert;

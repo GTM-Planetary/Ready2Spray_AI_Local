@@ -30,7 +30,8 @@ import {
   Trash2,
   Share2,
   Copy,
-  Check
+  Check,
+  Wind
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { EditJobDialog } from "@/components/EditJobDialog";
@@ -179,6 +180,10 @@ export default function JobV2Detail() {
             </div>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate(`/tools/drift-calculator?jobId=${jobId}`)}>
+              <Wind className="w-4 h-4 mr-2" />
+              Drift Risk
+            </Button>
             <Button onClick={() => setShowEditDialog(true)}>
               <Pencil className="w-4 h-4 mr-2" />
               Edit Job

@@ -160,7 +160,7 @@ export default function JobsV2() {
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="crop_dusting">Crop Dusting</SelectItem>
+                          <SelectItem value="aerial_application">Aerial Application</SelectItem>
                           <SelectItem value="pest_control">Pest Control</SelectItem>
                           <SelectItem value="fertilization">Fertilization</SelectItem>
                           <SelectItem value="herbicide">Herbicide</SelectItem>

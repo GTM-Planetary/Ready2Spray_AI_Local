@@ -7,6 +7,19 @@ import { getLoginUrl } from "@/const";
 export default function LandingPage() {
   const [, setLocation] = useLocation();
 
+  const handleDevLogin = async () => {
+    try {
+      const response = await fetch("/api/auth/dev-login", { method: "POST" });
+      const data = await response.json();
+      if (data.success && data.redirect) {
+        window.location.href = data.redirect;
+      } else {
+        console.error("Dev login failed", data);
+      }
+    } catch (error) {
+      console.error("Dev login error", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -21,6 +34,16 @@ export default function LandingPage() {
               </span>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              {import.meta.env.DEV && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-yellow-500/10 border-yellow-500 text-yellow-500 hover:bg-yellow-500/20"
+                  onClick={handleDevLogin}
+                >
+                  Dev Sign In
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"

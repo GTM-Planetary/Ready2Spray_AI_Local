@@ -8,13 +8,47 @@
 import Stripe from 'stripe';
 import { SUBSCRIPTION_TIERS, OWNER_EMAIL } from './products';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY environment variable is required');
+/**
+ * Validate and configure Stripe API key
+ */
+function getStripeConfig(): { secretKey: string; isTestMode: boolean } {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+
+  if (!secretKey) {
+    throw new Error(
+      'STRIPE_SECRET_KEY environment variable is required. ' +
+      'Get your key from https://dashboard.stripe.com/apikeys'
+    );
+  }
+
+  const isTestMode = secretKey.startsWith('sk_test_');
+  const isLiveMode = secretKey.startsWith('sk_live_');
+
+  if (!isTestMode && !isLiveMode) {
+    throw new Error(
+      'Invalid STRIPE_SECRET_KEY format. ' +
+      'Key must start with "sk_test_" (test mode) or "sk_live_" (production).'
+    );
+  }
+
+  // Warn if using test keys in production
+  if (process.env.NODE_ENV === 'production' && isTestMode) {
+    console.warn(
+      '⚠️  WARNING: Using Stripe test key in production environment. ' +
+      'Set STRIPE_SECRET_KEY to a live key (sk_live_) for real payments.'
+    );
+  }
+
+  return { secretKey, isTestMode };
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const { secretKey, isTestMode } = getStripeConfig();
+
+export const stripe = new Stripe(secretKey, {
   apiVersion: '2025-11-17.clover',
 });
+
+export const isStripeTestMode = isTestMode;
 
 /**
  * Create a Stripe customer for a new organization

@@ -254,15 +254,15 @@ export default function Settings() {
                     <SelectValue placeholder="Select organization type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ag_aerial">Ag Aerial (Crop Dusting)</SelectItem>
+                    <SelectItem value="ag_aerial">Ag Aerial (Aerial Application)</SelectItem>
                     <SelectItem value="residential_pest">Residential Pest Control</SelectItem>
                     <SelectItem value="both">Both (Ag Aerial + Pest Control)</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-sm text-muted-foreground">
-                  {formData.mode === "ag_aerial" && "Optimized for crop dusting operations with flight boards, load sheets, and field management."}
+                  {formData.mode === "ag_aerial" && "Optimized for aerial application operations with flight boards, load sheets, and field management."}
                   {formData.mode === "residential_pest" && "Optimized for pest control with service plans, zones, and route boards."}
-                  {formData.mode === "both" && "Full platform with features for both crop dusting and pest control operations."}
+                  {formData.mode === "both" && "Full platform with features for both aerial application and pest control operations."}
                 </p>
               </div>
 
