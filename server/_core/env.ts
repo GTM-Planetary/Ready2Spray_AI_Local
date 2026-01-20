@@ -10,7 +10,7 @@ export const ENV = {
   isDevAuth: process.env.VITE_DEV_AUTH === "true",
   invitationCode: process.env.INVITATION_CODE ?? "BETA2024",
   // LLM Provider Configuration
-  llmProvider: (process.env.LLM_PROVIDER ?? "anthropic") as "ollama" | "forge" | "anthropic",
+  llmProvider: (process.env.LLM_PROVIDER ?? "anthropic") as "ollama" | "anthropic" | "forge",
   // Ollama Configuration (for local model testing)
   ollamaUrl: process.env.OLLAMA_URL ?? "http://localhost:11434",
   ollamaModel: process.env.OLLAMA_MODEL ?? "llama3.2",

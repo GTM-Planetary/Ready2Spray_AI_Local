@@ -281,6 +281,19 @@ const normalizeResponseFormat = ({
 };
 
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
+  // Route to the appropriate provider based on configuration
+  switch (ENV.llmProvider) {
+    case "ollama":
+      return await invokeOllama(params);
+    case "anthropic":
+      return await invokeAnthropic(params);
+    case "forge":
+    default:
+      return await invokeForge(params);
+  }
+}
+
+async function invokeForge(params: InvokeParams): Promise<InvokeResult> {
   assertApiKey();
 
   const {
@@ -311,10 +324,10 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.tool_choice = normalizedToolChoice;
   }
 
-  payload.max_tokens = 32768
+  payload.max_tokens = 32768;
   payload.thinking = {
     "budget_tokens": 128
-  }
+  };
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,
@@ -344,4 +357,70 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   }
 
   return (await response.json()) as InvokeResult;
+}
+
+async function invokeAnthropic(params: InvokeParams): Promise<InvokeResult> {
+  const anthropic = new Anthropic({
+    apiKey: ENV.anthropicApiKey,
+  });
+
+  const { messages, tools, toolChoice, maxTokens, responseFormat } = params;
+
+  // Convert messages to Anthropic format
+  const anthropicMessages = messages.map(msg => {
+    if (msg.role === "user" || msg.role === "assistant" || msg.role === "system") {
+      return {
+        role: msg.role,
+        content: Array.isArray(msg.content) ? 
+          msg.content.map(part => 
+            part.type === "text" ? part.text : part
+          ).join("\n") : 
+          msg.content
+      };
+    }
+    return msg;
+  });
+
+  const anthropicParams: any = {
+    messages: anthropicMessages,
+    model: ENV.anthropicModel,
+    max_tokens: maxTokens || 32768,
+  };
+
+  if (tools && tools.length > 0) {
+    anthropicParams.tools = tools;
+  }
+
+  if (toolChoice) {
+    anthropicParams.tool_choice = toolChoice;
+  }
+
+  if (responseFormat) {
+    if (responseFormat.type === "json_object" || responseFormat.type === "json_schema") {
+      anthropicParams.response_format = responseFormat;
+    }
+  }
+
+  const response = await anthropic.messages.create(anthropicParams);
+  
+  return {
+    id: response.id,
+    created: Date.now(),
+    model: response.model,
+    choices: [
+      {
+        index: 0,
+        message: {
+          role: response.role,
+          content: response.content.map(c => c.text || "").join(""),
+        },
+        finish_reason: response.stop_reason,
+      }
+    ],
+    usage: response.usage ? {
+      prompt_tokens: response.usage.input_tokens,
+      completion_tokens: response.usage.output_tokens,
+      total_tokens: response.usage.input_tokens + response.usage.output_tokens,
+    } : undefined,
+  };
 }
