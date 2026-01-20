@@ -274,6 +274,21 @@ export const stripeRouter = router({
    * Get current subscription status
    */
   getSubscriptionStatus: protectedProcedure.query(async ({ ctx }) => {
+    // Dev mode bypass - return synthetic status without database queries
+    const isDev = process.env.NODE_ENV === "development" || process.env.VITE_DEV_AUTH === "true";
+    if (isDev && ctx.user.email && isOwnerBypass(ctx.user.email)) {
+      return {
+        hasOrganization: true,
+        hasSubscription: true,
+        status: "active",
+        plan: "enterprise",
+        creditsTotal: 999999,
+        creditsUsed: 0,
+        creditsRemaining: 999999,
+        isOwnerBypass: true,
+      };
+    }
+
     let userOrg = await getUserOrganization(ctx.user.id);
     
     // Auto-create organization for owner if doesn't exist

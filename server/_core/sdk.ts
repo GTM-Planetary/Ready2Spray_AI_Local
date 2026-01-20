@@ -268,9 +268,41 @@ class SDKServer {
 
     const sessionUserId = session.openId;
     const signedInAt = new Date();
-    let user = await db.getUserByOpenId(sessionUserId);
+    const isDev = process.env.NODE_ENV === "development" || process.env.VITE_DEV_AUTH === "true";
+    const isOwner = sessionUserId === process.env.OWNER_OPEN_ID;
 
-    // If user not in DB, sync from OAuth server automatically
+    // In dev mode with owner credentials, return synthetic user immediately
+    // This bypasses the database entirely to avoid Supabase RLS issues
+    if (isDev && isOwner) {
+      console.log("[Auth] Dev mode: Returning synthetic owner user for", sessionUserId);
+      return {
+        id: 1,
+        openId: sessionUserId,
+        name: process.env.OWNER_NAME || "Local Admin",
+        email: process.env.OWNER_EMAIL || "admin@localhost",
+        loginMethod: "dev",
+        role: "admin",
+        userRole: "owner",
+        phone: null,
+        license_number: null,
+        commission: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastSignedIn: signedInAt,
+      } as User;
+    }
+
+    // Normal authentication flow - try to get user from database
+    let user: User | undefined;
+    try {
+      user = await db.getUserByOpenId(sessionUserId);
+    } catch (dbError) {
+      console.error("[Auth] Database error getting user:", dbError);
+      // In dev mode, we can't proceed without the synthetic user check above
+      throw ForbiddenError("Database error during authentication");
+    }
+
+    // If user not in DB, try to sync from OAuth server
     if (!user) {
       try {
         const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
@@ -292,10 +324,20 @@ class SDKServer {
       throw ForbiddenError("User not found");
     }
 
-    await db.upsertUser({
-      openId: user.openId,
-      lastSignedIn: signedInAt,
-    });
+    // Update lastSignedIn
+    try {
+      await db.upsertUser({
+        openId: user.openId,
+        lastSignedIn: signedInAt,
+      });
+    } catch (error) {
+      // Ignore upsert errors in dev mode (Supabase RLS issues)
+      if (isDev) {
+        console.warn("[Auth] Dev mode: Ignoring upsert error for lastSignedIn");
+      } else {
+        throw error;
+      }
+    }
 
     return user;
   }

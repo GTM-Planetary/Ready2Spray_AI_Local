@@ -138,5 +138,6 @@ export const TRIAL_COUPONS = {
 /**
  * Owner Email for Bypass
  * This email gets unlimited access without payment
+ * Uses environment variable in dev mode, falls back to production email
  */
-export const OWNER_EMAIL = 'wyatt@gtmplanetary.com';
+export const OWNER_EMAIL = process.env.OWNER_EMAIL || 'wyatt@gtmplanetary.com';

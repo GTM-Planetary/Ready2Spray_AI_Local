@@ -19,10 +19,10 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
+import { APP_LOGO, APP_TITLE, getLoginUrl, isOAuthConfigured } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { usePermissions, Permission } from "@/hooks/usePermissions";
-import { LayoutDashboard, LogOut, PanelLeft, Users, UserPlus, Briefcase, UserCheck, Package, MessageSquare, MapPin, Settings as SettingsIcon, Building2, Plane, CalendarDays, Wrench, BarChart3, CalendarCheck, Pill, Key, Cloud, Brain, Wind } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, UserPlus, Briefcase, UserCheck, Package, MessageSquare, MapPin, Settings as SettingsIcon, Building2, Plane, CalendarDays, Wrench, BarChart3, CalendarCheck, Pill, Key, Cloud, Brain, Wind, ClipboardCheck } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -43,6 +43,7 @@ const menuItems: Array<{ icon: any; label: string; path: string; permission?: Pe
   { icon: Pill, label: "Products", path: "/products", permission: "view_products" },
   { icon: Cloud, label: "Weather", path: "/weather", permission: "view_weather" },
   { icon: Wind, label: "Drift Calculator", path: "/tools/drift-calculator", permission: "view_weather" },
+  { icon: ClipboardCheck, label: "Pre-Flight Checklist", path: "/tools/preflight", permission: "view_jobs" },
   { icon: MessageSquare, label: "AI Chat", path: "/chat", permission: "view_ai_chat" },
   { icon: MapPin, label: "Maps", path: "/maps", permission: "view_maps" },
   { icon: UserPlus, label: "Team", path: "/team", permission: "manage_team" },
@@ -88,6 +89,27 @@ export default function DashboardLayout({
   }
 
   if (!user) {
+    const handleSignIn = async () => {
+      // If OAuth is configured, use OAuth flow
+      if (isOAuthConfigured()) {
+        window.location.href = getLoginUrl();
+        return;
+      }
+
+      // Otherwise, use dev login (for local development)
+      try {
+        const response = await fetch("/api/auth/dev-login", { method: "POST" });
+        const data = await response.json();
+        if (data.success && data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          console.error("Dev login failed", data);
+        }
+      } catch (error) {
+        console.error("Dev login error", error);
+      }
+    };
+
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
@@ -109,13 +131,11 @@ export default function DashboardLayout({
             </div>
           </div>
           <Button
-            onClick={() => {
-              window.location.href = getLoginUrl();
-            }}
+            onClick={handleSignIn}
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"
           >
-            Sign in
+            {isOAuthConfigured() ? "Sign in" : "Dev Sign In"}
           </Button>
         </div>
       </div>

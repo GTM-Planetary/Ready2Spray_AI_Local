@@ -32,11 +32,16 @@ export function getSessionCookieOptions(
   const hostname = req.hostname;
   const isSecure = isSecureRequest(req);
   const isMobile = isMobileBrowser(req);
-  
-  // For mobile browsers, use more permissive settings
-  // Mobile Safari has strict cookie policies with sameSite=none
-  const sameSite: "lax" | "none" | "strict" = isMobile ? "lax" : "none";
-  
+  const isLocalhost = LOCAL_HOSTS.has(hostname);
+
+  // For localhost/development, use "lax" to ensure cookies work over HTTP
+  // For mobile browsers, use "lax" due to strict cookie policies
+  // For production (HTTPS), use "none" for cross-origin support
+  let sameSite: "lax" | "none" | "strict" = "lax";
+  if (!isLocalhost && !isMobile && isSecure) {
+    sameSite = "none";
+  }
+
   const shouldSetDomain =
     hostname &&
     !LOCAL_HOSTS.has(hostname) &&
