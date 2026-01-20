@@ -25,20 +25,7 @@ export default function OrganizationSetup() {
     invitationCode: "",
   });
 
-  // Restore form data from sessionStorage after OAuth login
-  useEffect(() => {
-    const savedData = sessionStorage.getItem('pendingOrgSetup');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        setFormData(parsed);
-        sessionStorage.removeItem('pendingOrgSetup');
-      } catch (e) {
-        console.error('Failed to restore form data:', e);
-      }
-    }
-  }, []);
-
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const createOrgMutation = trpc.stripe.createOrganization.useMutation({
     onSuccess: (data) => {
       if (data.requiresPayment) {
@@ -55,7 +42,33 @@ export default function OrganizationSetup() {
     },
   });
 
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  // Restore form data from sessionStorage after OAuth login
+  useEffect(() => {
+    const savedData = sessionStorage.getItem('pendingOrgSetup');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        setFormData(parsed);
+        sessionStorage.removeItem('pendingOrgSetup');
+      } catch (e) {
+        console.error('Failed to restore form data:', e);
+      }
+    }
+  }, []);
+
+  // Auto-submit if we have pending data and are authenticated
+  useEffect(() => {
+    const savedData = sessionStorage.getItem('pendingOrgSetup');
+    if (savedData && isAuthenticated && !authLoading) {
+      try {
+        const parsed = JSON.parse(savedData);
+        createOrgMutation.mutate(parsed);
+        sessionStorage.removeItem('pendingOrgSetup');
+      } catch (e) {
+        console.error('Failed to auto-submit form data:', e);
+      }
+    }
+  }, [isAuthenticated, authLoading, createOrgMutation]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,13 +77,12 @@ export default function OrganizationSetup() {
     if (!isAuthenticated) {
       // Store form data in sessionStorage so we can restore it after login
       sessionStorage.setItem('pendingOrgSetup', JSON.stringify(formData));
-      // Redirect to OAuth login with return URL
-      // Store return path for after OAuth
-      sessionStorage.setItem('postLoginRedirect', '/signup/organization');
+      // Redirect to OAuth login
       window.location.href = getLoginUrl();
       return;
     }
     
+    // If authenticated, proceed with organization creation
     createOrgMutation.mutate(formData);
   };
 
