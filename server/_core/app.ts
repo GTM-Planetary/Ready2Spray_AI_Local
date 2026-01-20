@@ -1,5 +1,6 @@
 import express from "express";
 import { createServer } from "http";
+import * as Sentry from "@sentry/node";
 import { appRouter } from "@/server/routers";
 import { createTRPCContext } from "@/server_core/context";
 import { t } from "@/server_core/trpc";
@@ -8,6 +9,16 @@ import { logApiRequest } from "@/server_core/webhookApi";
 import { setupVite } from "@/server_core/vite";
 import rateLimit from 'express-rate-limit';
 import { apiLogger } from '../logger';
+
+// Initialize Sentry for error tracking (only if DSN is configured)
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+  });
+  apiLogger.info('Sentry error tracking initialized');
+}
 
 // General rate limiter - 100 requests per 15 minutes
 const generalLimiter = rateLimit({
@@ -104,6 +115,11 @@ export async function createApp() {
       createContext,
     })
   );
+
+  // Sentry error handler (must be after all other middleware/routes)
+  if (process.env.SENTRY_DSN) {
+    Sentry.setupExpressErrorHandler(app);
+  }
 
   return { app, server };
 }
