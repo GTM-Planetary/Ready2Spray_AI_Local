@@ -34,6 +34,39 @@ export async function createApp() {
   app.use(generalLimiter);
   app.use('/api/trpc/auth', authLimiter);
 
+  // Health check endpoint for monitoring
+  app.get('/health', (req, res) => {
+    res.json({
+      status: 'ok',
+      timestamp: Date.now(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+    });
+  });
+
+  // Detailed health check with database connectivity
+  app.get('/health/ready', async (req, res) => {
+    try {
+      // Test database connection by running a simple query
+      const { db } = await import('../db');
+      await db.execute('SELECT 1');
+
+      res.json({
+        status: 'ok',
+        timestamp: Date.now(),
+        uptime: process.uptime(),
+        database: 'connected',
+      });
+    } catch (error) {
+      res.status(503).json({
+        status: 'error',
+        timestamp: Date.now(),
+        database: 'disconnected',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
